@@ -9,16 +9,16 @@ namespace RideShareConnect.Models
         public int Id { get; set; }
 
         [Required, MaxLength(100)]
-        public string FullName { get; set; }
+        public required string FullName { get; set; }
 
         [Required, EmailAddress, MaxLength(150)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required, MaxLength(100)]
-        public string PasswordHash { get; set; }
+        public required string PasswordHash { get; set; }
 
         [Phone]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         public string? ProfileImageUrl { get; set; }
 
