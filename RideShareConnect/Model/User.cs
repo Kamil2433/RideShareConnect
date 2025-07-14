@@ -3,31 +3,33 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-    public class User
-    {
-        [Key]
-        public int Id { get; set; }
-
-        [Required, MaxLength(100)]
-        public required string FullName { get; set; }
-
-        [Required, EmailAddress, MaxLength(150)]
-        public required string Email { get; set; }
-
-        [Required, MaxLength(100)]
-        public required string PasswordHash { get; set; }
-
-        [Phone]
-        public string? PhoneNumber { get; set; }
-
-        public string? ProfileImageUrl { get; set; }
-
-        public bool IsDriver { get; set; }
-        public bool IsPassenger { get; set; }
-
-        public bool IsVerified { get; set; } = false;
-        public bool IsSuspended { get; set; } = false;
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+  public class User
+{
+    [Key]
+    public int UserId { get; set; }
+    
+    // Authentication & Account Info
+    public string Email { get; set; }
+    public string PhoneNumber { get; set; }
+    public string PasswordHash { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsActive { get; set; }
+    public string Role { get; set; }
+    public bool IsEmailVerified { get; set; }
+    public bool IsPhoneVerified { get; set; }
+    
+    // Profile Information (Merged from UserProfile)
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string ProfilePicture { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public string Gender { get; set; }
+    public string Address { get; set; }
+    public string City { get; set; }
+    public string State { get; set; }
+    public string Country { get; set; }
+    public string Bio { get; set; }
+    public decimal Rating { get; set; }
+}
 }
