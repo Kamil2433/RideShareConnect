@@ -3,33 +3,39 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-  public class User
-{
-    [Key]
-    public int UserId { get; set; }
-    
-    // Authentication & Account Info
-    public string Email { get; set; }
-    public string PhoneNumber { get; set; }
-    public string PasswordHash { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public bool IsActive { get; set; }
-    public string Role { get; set; }
-    public bool IsEmailVerified { get; set; }
-    public bool IsPhoneVerified { get; set; }
-    
-    // Profile Information (Merged from UserProfile)
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string ProfilePicture { get; set; }
-    public DateTime? DateOfBirth { get; set; }
-    public string Gender { get; set; }
-    public string Address { get; set; }
-    public string City { get; set; }
-    public string State { get; set; }
-    public string Country { get; set; }
-    public string Bio { get; set; }
-    public decimal Rating { get; set; }
-}
+    public class User
+    {
+        [Key]
+        public int UserId { get; set; }
+        
+        // Authentication & Account Info
+        [Required]
+        public string Email { get; set; } // Required, non-nullable
+        [Required]
+        public string PhoneNumber { get; set; } // Required, non-nullable
+        [Required]
+        public string PasswordHash { get; set; } // Required, non-nullable
+        public DateTime CreatedAt { get; set; } = DateTime.Now; // Default value
+        public DateTime UpdatedAt { get; set; } = DateTime.Now; // Default value
+        public bool IsActive { get; set; } = true; // Default value
+        [Required]
+        public string Role { get; set; } // Required, non-nullable
+        public bool IsEmailVerified { get; set; } = false; // Default value
+        public bool IsPhoneVerified { get; set; } = false; // Default value
+        
+        // Profile Information (Merged from UserProfile)
+        [Required]
+        public string FirstName { get; set; } // Required, non-nullable
+        [Required]
+        public string LastName { get; set; } // Required, non-nullable
+        public string? ProfilePicture { get; set; } // Nullable
+        public DateTime? DateOfBirth { get; set; } // Nullable
+        public string? Gender { get; set; } // Nullable
+        public string? Address { get; set; } // Nullable
+        public string? City { get; set; } // Nullable
+        public string? State { get; set; } // Nullable
+        public string? Country { get; set; } // Nullable
+        public string? Bio { get; set; } // Nullable
+        public decimal Rating { get; set; } = 0.0m; // Default value
+    }
 }
