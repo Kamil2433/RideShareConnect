@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RideShareConnect; // Add this line
 
 namespace RideShareConnect.Controllers
 {
