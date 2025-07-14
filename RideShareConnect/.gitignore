@@ -1,0 +1,64 @@
+# Build directories
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+*.bak
+
+# SQLite DB and related files
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.db-wal
+*.db-shm
+
+# Symbol and index files
+*.vsidx
+*.vsp
+*.vspx
+
+# Cache
+.cache/
+.cache/**
+
+# VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# Environment files
+.env
+.env.*
+
+# EditorConfig (optional)
+.editorconfig
+
+# ASP.NET secrets
+secrets.json
+
+# EF Migrations (optional)
+**/Migrations/*.Designer.cs
+**/Migrations/*Snapshot.cs
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Publish output
+publish/
