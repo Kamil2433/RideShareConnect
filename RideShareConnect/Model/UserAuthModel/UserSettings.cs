@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
@@ -9,16 +8,15 @@ namespace RideShareConnect.Models
         public int SettingsId { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
 
         [Required]
+        public bool TermsAccepted { get; set; }
+
         public bool EmailNotifications { get; set; }
 
-        [Required]
         public bool SMSNotifications { get; set; }
 
-        [Required]
         public bool PushNotifications { get; set; }
 
         [StringLength(10)]
@@ -29,9 +27,6 @@ namespace RideShareConnect.Models
 
         [StringLength(50)]
         public string TimeZone { get; set; }
-
-        [Required]
-        public bool TermsAccepted { get; set; }
 
         public User User { get; set; }
     }

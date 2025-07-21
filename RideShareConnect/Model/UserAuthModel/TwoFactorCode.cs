@@ -1,21 +1,18 @@
-// File: Models/TwoFactorCode.cs
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
     public class TwoFactorCode
     {
         [Key]
-        public int Id { get; set; }
+        public int CodeId { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
 
         [Required]
-        [StringLength(10)]
+        [StringLength(6)]
         public string Code { get; set; }
 
         [Required]
@@ -24,13 +21,7 @@ namespace RideShareConnect.Models
         [Required]
         public DateTime ExpiresAt { get; set; }
 
-        [Required]
-        [StringLength(20)]
-        public string Status { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string DeliveryMethod { get; set; }
+        public bool IsUsed { get; set; }
 
         public User User { get; set; }
     }
