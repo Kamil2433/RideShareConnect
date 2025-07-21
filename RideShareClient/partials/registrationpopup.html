@@ -1,0 +1,45 @@
+ <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-container">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+            
+            <div class="popup-header">
+                <h2>Create Account</h2>
+                <p>Join us today! Fill in your details below</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Select Role</label>
+                    <select id="role" name="role" required>
+                        <option value="">Choose your role...</option>
+                        <option value="driver">Driver</option>
+                        <option value="passenger">Passenger</option>
+                    </select>
+                    <div class="error-message" id="roleError"></div>
+                </div>
+
+                <button type="submit" class="register-btn">Create Account</button>
+            </form>
+        </div>
+    </div>
