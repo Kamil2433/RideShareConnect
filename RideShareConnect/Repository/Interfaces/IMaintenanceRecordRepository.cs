@@ -6,7 +6,7 @@ namespace RideShareConnect.Repository.Interfaces
 {
     public interface IMaintenanceRecordRepository
     {
-        Task RecordMaintenance(MaintenanceRecordModel record);
+        Task RecordMaintenance(MaintenanceRecord record);
         Task ScheduleNextMaintenance(int vehicleId, DateTime nextDueDate);
         Task<IEnumerable<MaintenanceRecord>> GetMaintenanceHistory(int vehicleId);
     }

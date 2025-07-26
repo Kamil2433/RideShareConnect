@@ -5,9 +5,9 @@ namespace RideShareConnect.Repository.Interfaces
 {
     public interface IVehicleRepository
     {
-        Task RegisterVehicle(VehicleModel vehicleModel);
-        Task UpdateVehicle(int vehicleId, VehicleModel vehicleModel);
+        Task RegisterVehicle(Vehicle vehicle);
+        Task UpdateVehicle(int vehicleId, Vehicle vehicle);
         Task DeactivateVehicle(int vehicleID);
-        Task<VehicleMode> GetVehicleDetails(int vehicleId);
+        Task<Vehicle> GetVehicleDetails(int vehicleId);
     }
 }

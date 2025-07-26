@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RideShareConnect.Models
 {
-    public class VehicleModel
+    public class Vehicle
     {
         [Key]
         public int VehicleId { get; set; }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-	public class MaintenanceRecordModel
+	public class MaintenanceRecord
 	{
 		[Key]
 		public int MaintenanceId { get; set; }

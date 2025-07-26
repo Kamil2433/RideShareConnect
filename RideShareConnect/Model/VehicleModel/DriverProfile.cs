@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RideShareConnect.Models
 {
-    public class DriverProfileModel
+    public class DriverProfile
     {
         [Key]
         public int DriverProfileId { get; set; }

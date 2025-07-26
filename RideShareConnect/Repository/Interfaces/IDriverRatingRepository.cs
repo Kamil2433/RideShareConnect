@@ -6,7 +6,7 @@ namespace RideShareConnect.Repository.Interfaces
 {
     public interface IDriverRatingRepository
     {
-        Task RateDriver(DriverRatingModel rating);
+        Task RateDriver(DriverRating rating);
         Task<double> CalculateAverageRating(int driverId);
         Task<IEnumerable<DriverRating>> GetDriverRatings(int driverId);
     }
