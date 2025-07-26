@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-    public class VehicleDocument
+    public class VehicleDocumentModel
     {
         [Key]
         public int DocumentId { get; set; }
