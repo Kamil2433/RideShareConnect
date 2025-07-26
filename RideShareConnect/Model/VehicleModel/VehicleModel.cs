@@ -42,7 +42,7 @@ namespace RideShareConnect.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Relationships
-        public ICollection<VehicleDocument> VehicleDocuments { get; set; } = new List<VehicleDocument>();
-        public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
+        // public ICollection<VehicleDocument> VehicleDocuments { get; set; } = new List<VehicleDocument>();
+        // public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
     }
 }

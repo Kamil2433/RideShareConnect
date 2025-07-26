@@ -1,0 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace RideShareConnect.Controllers
+{
+    
+    public class DriverController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View(); // Loads Views/Driver/Index.cshtml
+        }
+    }
+}

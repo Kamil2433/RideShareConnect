@@ -35,7 +35,7 @@ namespace RideShareConnect.Models
         public DateTime? VerifiedAt { get; set; }
 
         // Relationships
-        public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
-        public ICollection<DriverRating> DriverRatings { get; set; } = new List<DriverRating>();
+        // public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        // public ICollection<DriverRating> DriverRatings { get; set; } = new List<DriverRating>();
     }
 }

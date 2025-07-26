@@ -28,7 +28,7 @@ namespace RideShareConnect.Models
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 		// Navigation
-		[ForeignKey("DriverId")]
-		public DriverProfile? Driver { get; set; }
+		// [ForeignKey("DriverId")]
+		// public DriverProfile? Driver { get; set; }
 	}
 }
