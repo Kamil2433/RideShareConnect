@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RideShareConnect.Dtos;
+using RideShareConnect.Models;
+using RideShareConnect.Repositories;
 
 namespace RideShareConnect.Repositories
 {

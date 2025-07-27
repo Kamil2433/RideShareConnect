@@ -9,6 +9,9 @@ using RideShareConnect.MappingProfiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using RideShareConnect.Dtos;
+using RideShareConnect.Models;
+using RideShareConnect.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +34,7 @@ builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
 builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddScoped<IEmailService, MockEmailService>();
 builder.Services.AddScoped<IRideService, RideService>();
+builder.Services.AddScoped<IRideRepository, RideRepository>();
 
 
 // Configure JWT Authentication
