@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="~/css/site.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
+@await Html.PartialAsync("_LoginPopup")
+@await Html.PartialAsync("_SignupPopup")
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
@@ -20,8 +23,10 @@
                 <li><a href="#" class="nav-link">Safety</a></li>
                 <li><a href="#" class="nav-link">Help</a></li>
                 <div class="auth-buttons">
-                    <a href="#" class="btn btn-login">Login</a>
-                    <a href="#" class="btn btn-signup">Sign Up</a>
+             <a href="#" class="btn btn-login" onclick="openPopup('login-popup')">Login</a>
+<a href="#" class="btn btn-signup" onclick="openPopup('signup-popup')">Sign Up</a>
+
+
                 </div>
             </ul>
         </div>

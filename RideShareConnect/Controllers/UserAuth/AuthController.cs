@@ -41,7 +41,7 @@ namespace RideShareConnect.Controllers.UserAuth
             var existingUser = await _userAuthRepository.GetUserByEmailAsync(registerDto.Email);
             if (existingUser != null)
                 return Conflict("Email already exists.");
-
+              
             if (registerDto.Role != "Driver" && registerDto.Role != "Passenger" && registerDto.Role != "Admin")
                 return BadRequest("Invalid role. Must be Driver, Passenger, or Admin.");
 
