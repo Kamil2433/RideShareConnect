@@ -31,6 +31,8 @@ namespace RideShareConnect.Services
                 BookingTime = DateTime.UtcNow
             };
 
+
+
             return await _rideRepository.CreateRideBookingAsync(booking);
         }
 
