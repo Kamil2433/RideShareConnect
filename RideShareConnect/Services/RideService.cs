@@ -16,6 +16,56 @@ namespace RideShareConnect.Services
             _rideRepository = rideRepository;
         }
 
+
+        public async Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto)
+        {
+            var rides = await _rideRepository.SearchRidesAsync(searchDto);
+
+            return rides.Select(ride => new RideDto
+            {
+                RideId = ride.RideId,
+                DriverId = ride.DriverId,
+                VehicleId = ride.VehicleId,
+                Origin = ride.Origin,
+                Destination = ride.Destination,
+                DepartureTime = ride.DepartureTime,
+                ArrivalTime = ride.ArrivalTime,
+                AvailableSeats = ride.AvailableSeats,
+                PricePerSeat = ride.PricePerSeat,
+                RideType = ride.RideType,
+                Status = ride.Status,
+                Notes = ride.Notes,
+                IsRecurring = ride.IsRecurring
+            });
+        }
+
+
+        public async Task<bool> CreateRideAsync(RideCreateDto dto, int driverId)
+        {
+            var ride = new Ride
+            {
+                DriverId = driverId,
+                VehicleId = dto.VehicleId,
+                Origin = dto.Origin,
+                Destination = dto.Destination,
+                DepartureTime = dto.DepartureTime,
+                ArrivalTime = dto.ArrivalTime,
+                AvailableSeats = dto.AvailableSeats,
+                BookedSeats = dto.BookedSeats,
+                PricePerSeat = dto.PricePerSeat,
+                RideType = dto.RideType ?? "OneTime",
+                Status = dto.Status ?? "Scheduled",
+                Notes = dto.Notes,
+                IsRecurring = dto.IsRecurring,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            return await _rideRepository.CreateRideAsync(ride);
+        }
+
+
+
         public async Task<bool> BookRideAsync(RideBookingCreateDto dto, int passengerId)
         {
             var booking = new RideBooking
