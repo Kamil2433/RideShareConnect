@@ -1,0 +1,63 @@
+@* /Views/Shared/_PassengerLayout.cshtml *@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - Passenger Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/css/passenger.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (reuse for all views) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <h3>PASSENGER PROFILE</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item"><a href="/Passenger/BookRide" class="menu-link"><i class="fas fa-car"></i><span>BOOK RIDE</span></a></li>
+                <li class="menu-item"><a href="/Passenger/AcceptRide" class="menu-link"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li>
+                <li class="menu-item"><a href="/Passenger/Wallet" class="menu-link"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
+                <li class="menu-item"><a href="/Passenger/Payments" class="menu-link"><i class="fas fa-credit-card"></i><span>PAYMENTS</span></a></li>
+                <li class="menu-item"><a href="/Passenger/History" class="menu-link"><i class="fas fa-history"></i><span>HISTORY</span></a></li>
+                <li class="menu-item"><a href="/Passenger/About" class="menu-link"><i class="fas fa-info-circle"></i><span>ABOUT</span></a></li>
+                <li class="menu-item"><a href="#" onclick="logout(); return false;" class="menu-link"><i class="fas fa-sign-out-alt"></i><span>LOGOUT</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script>
+        // Role-based protection
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+            alert("You must be logged in.");
+            window.location.href = "/";
+        } else {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+                if (role !== "Passenger") {
+                    alert("Access Denied. Only Passengers allowed.");
+                    window.location.href = "/";
+                }
+            } catch {
+                alert("Invalid token.");
+                window.location.href = "/";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("jwt_token");
+            alert("You have been logged out.");
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>
