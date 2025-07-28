@@ -10,16 +10,16 @@ namespace RideShareConnect.Controllers
         {
             return View(); // Loads Views/Passenger/Index.cshtml
         }
-        
-        public IActionResult Wallet()
+     public IActionResult Wallet()
+    {
+        return View(); // Will look for Views/Passenger/Wallet.cshtml
+    }
+
+    public IActionResult History()
     {
         return View();
     }
     
-     public IActionResult Payments()
-    {
-        return View();
-    }
     }
 
     
