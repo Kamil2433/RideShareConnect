@@ -122,7 +122,7 @@
     <div class="form-container">
         <h2>Post a Ride</h2>
 
-        <form asp-action="PostRide" method="post">
+        <form asp-action="PostRide" method="post"   id="postRideForm">
             <div class="search-container">
                 <input type="text" id="origin-search" class="search-box" placeholder="Search origin...">
                 <button type="button" id="search-origin" class="search-button">Search</button>
@@ -216,22 +216,22 @@
             const query = destinationSearch.value;
             if (query) {
                 searchLocation(query, setDestination, function () {
-                    if (originMarker) drawRoute();
+                   drawRoute();
                 });
             }
         });
 
-        function searchLocation(query, callback, success) {
-            provider.search({ query: query })
-                .then(function (result) {
-                    if (result.length > 0) {
-                        const latlng = L.latLng(result[0].y, result[0].x);
-                        map.setView(latlng, 13);
-                        callback(latlng);
-                        if (success) success();
-                    }
-                });
-        }
+        //function searchLocation(query, callback, success) {
+        //    provider.search({ query: query })
+        //        .then(function (result) {
+        //            if (result.length > 0) {
+        //                const latlng = L.latLng(result[0].y, result[0].x);
+        //                map.setView(latlng, 13);
+        //                callback(latlng);
+        //                if (success) success();
+        //            }
+        //        });
+        //}
 
         function setOrigin(latlng) {
             if (originMarker) map.removeLayer(originMarker);
@@ -303,6 +303,84 @@
                 padding: [50, 50]
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('postRideForm');
+
+            // Check if form exists before adding listener
+            if (!form) {
+                console.error('Could not find form with ID "postRideForm"');
+                return;
+            }
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitBtn = document.getElementById('submitButton');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Posting...';
+
+                try {
+                    const response = await fetch('http://localhost:5157/api/Ride', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify({
+                            Origin: document.getElementById('origin-input').value,
+                            Destination: document.getElementById('destination-input').value,
+                            DepartureTime: document.querySelector('[name="DepartureTime"]').value,
+                            AvailableSeats: parseInt(document.querySelector('[name="AvailableSeats"]').value),
+                            PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value)
+                        })
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+
+                    alert('Ride posted successfully!');
+                    form.reset();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error posting ride: ' + error.message);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Post Ride';
+                }
+            });
+        });
+
+        async function searchLocation(query, callback) {
+            try {
+                const response = await fetch(`/geocode?q=${encodeURIComponent(query)}`);
+
+                if (!response.ok) {
+                    throw new Error(`Geocoding failed: ${response.status}`);
+                }
+
+                const results = await response.json();
+
+                if (results.length > 0) {
+                    const latlng = L.latLng(results[0].lat, results[0].lon);
+                    callback(latlng);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Geocoding error:", error);
+                alert("Location search failed. Please try again later.");
+                return false;
+            }
+        }
+
+
+        // Helper function to get the auth token (you'll need to implement this based on how you store tokens)
+        function getAuthToken() {
+            // This could come from localStorage, cookies, etc.
+            return localStorage.getItem('authToken');
+        }
+
     </script>
 </body>
 </html>
