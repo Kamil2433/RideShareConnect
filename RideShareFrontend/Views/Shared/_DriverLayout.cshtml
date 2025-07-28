@@ -32,7 +32,7 @@
 
             <div class="user-avatar"><i class="fas fa-user"></i></div>
 
-            <h3><a href="/Passenger/">PASSENGER PROFILE
+            <h3><a href="/Passenger/">DRIVER PROFILE
             </a>
              </h3>
 
@@ -40,17 +40,17 @@
 
         <ul class="sidebar-menu">
 
-            <!-- <li><a href="/Passenger/BookRide"><i class="fas fa-car"></i><span>BOOK RIDE</span></a></li> -->
+             <li><a href="/Passenger/BookRide"><i class="fas fa-car"></i><span>BOOK RIDE</span></a></li> 
 
-            <li><a href="/Passenger/AcceptRide"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li>
+            <!-- <li><a href="/Passenger/AcceptRide"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li> -->
 
-            <li><a href="/Passenger/Wallet"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
+            <li><a href="/driver/Wallet"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
 
-            <li><a href="/Passenger/Payments"><i class="fas fa-credit-card"></i><span>PAYMENTS</span></a></li>
+            <li><a href="/driver/Payments"><i class="fas fa-credit-card"></i><span>PAYMENTS</span></a></li>
 
-            <li><a href="/Passenger/History"><i class="fas fa-history"></i><span>HISTORY</span></a></li>
+            <li><a href="/driver/History"><i class="fas fa-history"></i><span>HISTORY</span></a></li>
 
-            <li><a href="/Passenger/About"><i class="fas fa-info-circle"></i><span>ABOUT</span></a></li>
+            <li><a href="/driver/About"><i class="fas fa-info-circle"></i><span>ABOUT</span></a></li>
 
             <li><a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i><span>LOGOUT</span></a></li>
 
@@ -73,54 +73,22 @@
 
 
 <script>
+        // Role-based protection
+        const token = localStorage.getItem("jwt_token");
 
-    const token = localStorage.getItem("jwt_token");
-
-
-
-    if (!token) {
-
-        alert("You must be logged in.");
-
-        window.location.href = "/";
-
-    } else {
-
-        try {
-
+        if (!token) {
+            alert("You must be logged in.");
+            window.location.href = "/";
+        } else {
             const payload = JSON.parse(atob(token.split('.')[1]));
-
             const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-            if (role !== "Passenger") {
-
-                alert("Access Denied. Only Passengers allowed.");
-
+            if (role !== "Driver") {
+                alert("Access Denied. Only Drivers allowed.");
                 window.location.href = "/";
-
             }
-
-        } catch (error) {
-
-            alert("Invalid token.");
-
-            window.location.href = "/";
-
         }
-
-    }
-
-
-
-    function logout() {
-        localStorage.removeItem("jwt_token");
-        alert("You have been logged out.");
-        window.location.href = "/";
-    }
-
-
-</script>
-
+    </script>
 
 
 

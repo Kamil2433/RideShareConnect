@@ -19,6 +19,14 @@ namespace RideShareConnect.Controllers
     {
         return View();
     }
+    public IActionResult Payments()
+    {
+        return View();
+    }
+     public IActionResult AcceptRide()
+    {
+        return View();
+    }
     
     }
 
