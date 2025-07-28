@@ -1,4 +1,4 @@
-@{
+@* @{
     Layout = null;
 }
 
@@ -30,5 +30,283 @@
             }
         }
     </script>
+</body>
+</html> *@
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passenger Dashboard</title>
+   
+    <link rel="stylesheet" href="~/css/passenger.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+
+<link rel="stylesheet" href="~/css/passenger.css" />
+
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h3>PASSENGER PROFILE</h3>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="/Passenger/BookRide" class="menu-link">
+                    <i class="fas fa-car"></i>
+                    <span>BOOK RIDE</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/Passenger/AcceptRide" class="menu-link">
+                    <i class="fas fa-check-circle"></i>
+                    <span>ACCEPT RIDE</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/Passenger/Wallet" class="menu-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>WALLET</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/Passenger/Payments" class="menu-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>PAYMENTS</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/Passenger/History" class="menu-link">
+                    <i class="fas fa-history"></i>
+                    <span>HISTORY</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/Passenger/About" class="menu-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Welcome to Your Dashboard</h1>
+            <p>Manage your rides and profile from here</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Quick Stats Cards -->
+            <div class="stats-card">
+                <div class="card-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Total Rides</h3>
+                    <p class="stat-number">24</p>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="card-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Wallet Balance</h3>
+                    <p class="stat-number">$127.50</p>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Your Rating</h3>
+                    <p class="stat-number">4.8</p>
+                </div>
+            </div>
+
+            <!-- Recent Activity Section -->
+            <div class="activity-section">
+                <h2>Recent Activity</h2>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="activity-details">
+                            <h4>Ride Completed</h4>
+                            <p>Trip to Downtown - $15.30</p>
+                            <small>2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="activity-details">
+                            <h4>Wallet Topped Up</h4>
+                            <p>Added $50.00 to wallet</p>
+                            <small>1 day ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="activity-details">
+                            <h4>Ride Booked</h4>
+                            <p>Trip to Airport scheduled</p>
+                            <small>3 days ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="/Passenger/BookRide" class="action-btn primary">
+                        <i class="fas fa-plus"></i>
+                        Book New Ride
+                    </a>
+                    <a href="/Passenger/Wallet" class="action-btn secondary">
+                        <i class="fas fa-wallet"></i>
+                        Add Money
+                    </a>
+                    <a href="/Passenger/History" class="action-btn tertiary">
+                        <i class="fas fa-history"></i>
+                        View History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Role-based protection
+    const token = localStorage.getItem("jwt_token");
+
+    if (!token) {
+        alert("You must be logged in.");
+        window.location.href = "/";
+    } else {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+            if (role !== "Passenger") {
+                alert("Access Denied. Only Passengers allowed.");
+                window.location.href = "/";
+            } else {
+                // User is authenticated and has correct role
+                // You can add any additional initialization code here
+                console.log("Passenger dashboard loaded successfully");
+                
+                // Optional: Extract user info from token
+                const userName = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "Passenger";
+                const userEmail = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || "";
+                
+                // Update welcome message with user name if available
+                if (userName && userName !== "Passenger") {
+                    const welcomeHeader = document.querySelector('.content-header h1');
+                    if (welcomeHeader) {
+                        welcomeHeader.textContent = `Welcome back, ${userName}!`;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error parsing token:", error);
+            alert("Invalid token. Please log in again.");
+            window.location.href = "/";
+        }
+    }
+
+    // Mobile menu toggle functionality
+    function toggleMobileMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Add mobile menu button for responsive design
+    if (window.innerWidth <= 768) {
+        const mobileMenuBtn = document.createElement('button');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.classList.add('mobile-menu-btn');
+        mobileMenuBtn.onclick = toggleMobileMenu;
+        document.body.appendChild(mobileMenuBtn);
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.sidebar');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        
+        if (window.innerWidth <= 768 && 
+            !sidebar.contains(event.target) && 
+            !mobileMenuBtn?.contains(event.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Add logout functionality
+    function logout() {
+        localStorage.removeItem("jwt_token");
+        alert("You have been logged out successfully.");
+        window.location.href = "/";
+    }
+
+    // Optional: Add logout button to sidebar
+    window.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.sidebar-menu');
+        if (sidebar) {
+            const logoutItem = document.createElement('li');
+            logoutItem.classList.add('menu-item');
+            logoutItem.innerHTML = `
+                <a href="#" onclick="logout(); return false;" class="menu-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>LOGOUT</span>
+                </a>
+            `;
+            sidebar.appendChild(logoutItem);
+        }
+    });
+</script>
+
+<script>
+        // Role-based protection
+        const token = localStorage.getItem("jwt_token");
+
+        if (!token) {
+            alert("You must be logged in.");
+            window.location.href = "/";
+        } else {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+            if (role !== "Passenger") {
+                alert("Access Denied. Only Passengers allowed.");
+                window.location.href = "/";
+            }
+        }
+    </script>
+
 </body>
 </html>

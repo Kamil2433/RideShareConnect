@@ -267,7 +267,11 @@ async function handleLogin(event) {
             window.location.href = "/Passenger";
         } else if (role === "Driver") {
             window.location.href = "/Driver";
-        } else {
+        } 
+        else if(role ==="Admin"){
+            window.location.href = "/Admin";
+        }
+        else {
             alert("Unknown user role.");
         }
 

@@ -296,22 +296,14 @@ body {
     background: #000000;
     color: #FFFFFF;
     padding: 3.5rem 0 1.5rem;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 999;
+   
 }
 
 .footer-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 999;
+    
 
 }
 
