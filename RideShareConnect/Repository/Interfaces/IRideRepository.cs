@@ -5,14 +5,12 @@ using RideShareConnect.Dtos;
 
 namespace RideShareConnect.Repositories
 {
-	public interface IRideRepository
-	{
-
+    public interface IRideRepository
+    {
         Task<IEnumerable<Ride>> SearchRidesAsync(RideSearchDto searchDto);
-
         Task<bool> CreateRideAsync(Ride ride);
-
+        Task AddRoutePointsAsync(IEnumerable<RoutePoint> routePoints);
         Task<bool> CreateRideBookingAsync(RideBooking booking);
         Task<IEnumerable<Ride>> GetRidesByUserIdAsync(int userId);
-	}
+    }
 }

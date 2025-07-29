@@ -61,9 +61,74 @@ namespace RideShareConnect.Services
                 UpdatedAt = DateTime.UtcNow
             };
 
-            return await _rideRepository.CreateRideAsync(ride);
-        }
+            // First save the ride to get the ID
+            var result = await _rideRepository.CreateRideAsync(ride);
 
+            if (result)
+            {
+                var routePoints = new List<RoutePoint>();
+                int sequenceOrder = 1;
+
+                // Add origin as the first route point
+                routePoints.Add(new RoutePoint
+                {
+                    RideId = ride.RideId,
+                    LocationName = dto.Origin,
+                    Latitude = 0, // Optional: Fill if you have coordinates
+                    Longitude = 0,
+                    SequenceOrder = sequenceOrder++,
+                    EstimatedTime = dto.DepartureTime,
+                    IsPickupPoint = true,
+                    IsDropPoint = false,
+                
+                });
+
+
+                if (!string.IsNullOrWhiteSpace(dto.RoutePoints))
+                {
+                    var points = dto.RoutePoints.Split(',')
+                        .Select(p => p.Trim())
+                        .Where(p => !string.IsNullOrWhiteSpace(p))
+                        .ToList();
+
+                    foreach (var point in points)
+                    {
+                        routePoints.Add(new RoutePoint
+                        {
+                            RideId = ride.RideId,
+                            LocationName = point,
+                            Latitude = 0, // You should implement geocoding here
+                            Longitude = 0,
+                            SequenceOrder = sequenceOrder++,
+                            EstimatedTime = dto.DepartureTime.AddMinutes(sequenceOrder * 10), // Example estimation
+                            IsPickupPoint = false,
+                            IsDropPoint = false,
+                        
+                        });
+                    }
+                }
+
+
+
+                // Add destination as the last route point
+                routePoints.Add(new RoutePoint
+                {
+                    RideId = ride.RideId,
+                    LocationName = dto.Destination,
+                    Latitude = 0, // Optional: Fill if you have coordinates
+                    Longitude = 0,
+                    SequenceOrder = sequenceOrder,
+                    EstimatedTime = dto.ArrivalTime,
+                    IsPickupPoint = false,
+                    IsDropPoint = true,
+                  
+                });
+
+                await _rideRepository.AddRoutePointsAsync(routePoints);
+            }
+
+            return result;
+        }
 
 
         public async Task<bool> BookRideAsync(RideBookingCreateDto dto, int passengerId)

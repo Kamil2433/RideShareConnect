@@ -44,6 +44,14 @@ namespace RideShareConnect.Repositories
         }
 
 
+        public async Task AddRoutePointsAsync(IEnumerable<RoutePoint> routePoints)
+        {
+            await _context.RoutePoints.AddRangeAsync(routePoints);
+            await _context.SaveChangesAsync();
+        }
+
+
+
         public async Task<bool> CreateRideBookingAsync(RideBooking booking)
         {
             _context.RideBookings.Add(booking);

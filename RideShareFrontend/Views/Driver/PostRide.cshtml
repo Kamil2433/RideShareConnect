@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Post a Ride";
-    Layout = null;
+    Layout = "~/Views/Shared/_DriverLayout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -17,10 +17,10 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+/*            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            color: #333;
+            color: #333;*/
         }
 
         h2 {
@@ -161,7 +161,7 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="RoutePoints">Route Points</label>
+                <label asp-for="RoutePoints">Route Points (In Sequence)</label>
                 <input type="text" id="routePoints-input" asp-for="RoutePoints" placeholder="e.g., Pune, Satara, Kolhapur" />
                 <p class="instructions">Enter intermediate route points (comma-separated)</p>
             </div>
