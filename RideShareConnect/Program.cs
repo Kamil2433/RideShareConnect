@@ -28,7 +28,7 @@ builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
 
 // Register repositories and services
 builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
-builder.Services.AddScoped<IEmailService, MockEmailService>();
+// builder.Services.AddScoped<IEmailService, MockEmailService>();
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -64,6 +64,9 @@ builder.Services.AddCors(options =>
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 var app = builder.Build();
 
