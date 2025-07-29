@@ -30,7 +30,7 @@ namespace RideShareConnect.Models
 		public string ServiceProvider { get; set; } = string.Empty;
 
 		// Navigation
-		[ForeignKey("VehicleId")]
-		public Vehicle? Vehicle { get; set; }
+		// [ForeignKey("VehicleId")]
+		// public Vehicle? Vehicle { get; set; }
 	}
 }

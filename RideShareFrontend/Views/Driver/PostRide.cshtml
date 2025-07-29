@@ -1,0 +1,308 @@
+@model RideShareFrontend.Models.DTOs.RideCreateDto
+
+@{
+    ViewData["Title"] = "Post a Ride";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          crossorigin="" />
+    <!-- Leaflet Geosearch CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="number"],
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .map-container {
+            height: 400px;
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+        }
+
+        .search-button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .search-button:hover {
+                background-color: #2980b9;
+            }
+
+        button[type="submit"] {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+            button[type="submit"]:hover {
+                background-color: #219653;
+            }
+
+        .instructions {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Post a Ride</h2>
+
+        <form asp-action="PostRide" method="post">
+            <div class="search-container">
+                <input type="text" id="origin-search" class="search-box" placeholder="Search origin...">
+                <button type="button" id="search-origin" class="search-button">Search</button>
+            </div>
+            <div class="form-group">
+                <label asp-for="Origin">Origin</label>
+                <input type="text" id="origin-input" asp-for="Origin" required />
+                <p class="instructions">Or click on the map to set origin</p>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="destination-search" class="search-box" placeholder="Search destination...">
+                <button type="button" id="search-destination" class="search-button">Search</button>
+            </div>
+            <div class="form-group">
+                <label asp-for="Destination">Destination</label>
+                <input type="text" id="destination-input" asp-for="Destination" required />
+                <p class="instructions">Or click on the map to set destination</p>
+            </div>
+
+            <div id="map" class="map-container"></div>
+
+            <div class="form-group">
+                <label asp-for="DepartureTime">Departure Time</label>
+                <input type="datetime-local" asp-for="DepartureTime" required />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AvailableSeats">Available Seats</label>
+                <input type="number" asp-for="AvailableSeats" min="1" required />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PricePerSeat">Price Per Seat ($)</label>
+                <input type="number" asp-for="PricePerSeat" step="0.01" min="0" required />
+            </div>
+
+            <button type="submit">Post Ride</button>
+        </form>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+           
+            crossorigin=""></script>
+    <!-- Leaflet Geosearch JS -->
+    <script src="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.umd.js"></script>
+
+    <script>
+        // Initialize map centered on India
+        let map = L.map('map').setView([20.5937, 78.9629], 5);
+        let originMarker, destinationMarker;
+        let routeLayer = L.layerGroup().addTo(map);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Initialize geosearch provider
+        const provider = new GeoSearch.OpenStreetMapProvider();
+
+        // DOM elements
+        const originInput = document.getElementById("origin-input");
+        const destinationInput = document.getElementById("destination-input");
+        const originSearch = document.getElementById("origin-search");
+        const destinationSearch = document.getElementById("destination-search");
+        const searchOriginBtn = document.getElementById("search-origin");
+        const searchDestinationBtn = document.getElementById("search-destination");
+
+        // Map click handler
+        map.on('click', function (e) {
+            if (!originMarker) {
+                setOrigin(e.latlng);
+            } else if (!destinationMarker) {
+                setDestination(e.latlng);
+                drawRoute();
+            }
+        });
+
+        // Search origin location
+        searchOriginBtn.addEventListener('click', function () {
+            const query = originSearch.value;
+            if (query) {
+                searchLocation(query, setOrigin);
+            }
+        });
+
+        // Search destination location
+        searchDestinationBtn.addEventListener('click', function () {
+            const query = destinationSearch.value;
+            if (query) {
+                searchLocation(query, setDestination, function () {
+                    if (originMarker) drawRoute();
+                });
+            }
+        });
+
+        function searchLocation(query, callback, success) {
+            provider.search({ query: query })
+                .then(function (result) {
+                    if (result.length > 0) {
+                        const latlng = L.latLng(result[0].y, result[0].x);
+                        map.setView(latlng, 13);
+                        callback(latlng);
+                        if (success) success();
+                    }
+                });
+        }
+
+        function setOrigin(latlng) {
+            if (originMarker) map.removeLayer(originMarker);
+            originMarker = L.marker(latlng, {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'origin-marker',
+                    html: '<div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [24, 24]
+                })
+            }).addTo(map).bindPopup('Origin').openPopup();
+
+            reverseGeocode(latlng, originInput);
+
+            originMarker.on('dragend', function () {
+                reverseGeocode(originMarker.getLatLng(), originInput);
+                if (destinationMarker) drawRoute();
+            });
+        }
+
+        function setDestination(latlng) {
+            if (destinationMarker) map.removeLayer(destinationMarker);
+            destinationMarker = L.marker(latlng, {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'destination-marker',
+                    html: '<div style="background-color: #e74c3c; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [24, 24]
+                })
+            }).addTo(map).bindPopup('Destination').openPopup();
+
+            reverseGeocode(latlng, destinationInput);
+
+            destinationMarker.on('dragend', function () {
+                reverseGeocode(destinationMarker.getLatLng(), destinationInput);
+                drawRoute();
+            });
+        }
+
+        function reverseGeocode(latlng, inputBox) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        inputBox.value = data.display_name;
+                    }
+                })
+                .catch(error => console.error('Geocoding error:', error));
+        }
+
+        function drawRoute() {
+            if (!originMarker || !destinationMarker) return;
+
+            routeLayer.clearLayers();
+
+            const origin = originMarker.getLatLng();
+            const destination = destinationMarker.getLatLng();
+
+            // Draw a simple straight line (for actual routing you'd need a routing service)
+            const route = L.polyline([origin, destination], {
+                color: '#27ae60',
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(routeLayer);
+
+            // Adjust map view to show both points
+            map.fitBounds(L.latLngBounds(origin, destination), {
+                padding: [50, 50]
+            });
+        }
+    </script>
+</body>
+</html>

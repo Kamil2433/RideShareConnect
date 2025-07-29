@@ -33,7 +33,7 @@ namespace RideShareConnect.Models
         public DateTime? VerifiedAt { get; set; }
 
         // Navigation
-        [ForeignKey("VehicleId")]
-        public Vehicle? Vehicle { get; set; }
+        // [ForeignKey("VehicleId")]
+        // public Vehicle? Vehicle { get; set; }
     }
 }
