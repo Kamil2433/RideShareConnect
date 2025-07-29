@@ -1,0 +1,369 @@
+
+@{
+    Layout = "~/Views/Shared/_DriverLayout.cshtml";
+    ViewBag.Title = "Dashboard";
+}
+
+<link rel="stylesheet" href="~/css/Driver/Driver.css" />
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+    }
+
+    p {
+        text-align: center;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .driver-profile-form {
+        max-width: 800px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 40px auto;
+    }
+
+        .driver-profile-form h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 25px;
+        }
+
+    .form-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+    }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+
+        .form-group.full-width {
+            flex: 100%;
+        }
+
+    .driver-profile-form label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+        color: #333;
+    }
+
+    .driver-profile-form input[type="text"],
+    .driver-profile-form input[type="email"],
+    .driver-profile-form input[type="tel"],
+    .driver-profile-form input[type="date"],
+    .driver-profile-form input[type="number"],
+    .driver-profile-form input[type="file"],
+    .driver-profile-form select,
+    .driver-profile-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+    .driver-profile-form textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .driver-profile-form input[type="file"] {
+        padding: 6px;
+    }
+
+    .driver-profile-form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+        .driver-profile-form button:hover {
+            background-color: #0056b3;
+        }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+    .approval-status {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .status-pending {
+        color: #856404;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    .file-upload-hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+
+<h1>Welcome to the Driver Dashboard</h1>
+<p>Complete your driver profile and get approved to start driving</p>
+
+<div class="approval-status">
+    <h3 class="status-pending">Profile Approval Status: Pending Verification</h3>
+    <p>Please complete all sections below to get your driver profile approved</p>
+</div>
+
+<div class="driver-profile-form">
+    <h2>Driver Profile & Approval</h2>
+
+    <form asp-controller="Driver" asp-action="SubmitProfile" method="post" enctype="multipart/form-data">
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <h3>Personal Information</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name <span class="required">*</span></label>
+                    <input type="text" name="FirstName" id="firstName" required />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name <span class="required">*</span></label>
+                    <input type="text" name="LastName" id="lastName" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                    <input type="date" name="DateOfBirth" id="dateOfBirth" required />
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                    <input type="tel" name="PhoneNumber" id="phoneNumber" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="address">Complete Address <span class="required">*</span></label>
+                <textarea name="Address" id="address" placeholder="Enter your complete address" required></textarea>
+            </div>
+        </div>
+
+        <!-- Driver License Verification Section -->
+        <div class="form-section">
+            <h3>Driver License Verification</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="licenseNumber">License Number <span class="required">*</span></label>
+                    <input type="text" name="LicenseNumber" id="licenseNumber" required />
+                </div>
+                <div class="form-group">
+                    <label for="licenseExpiry">License Expiry Date <span class="required">*</span></label>
+                    <input type="date" name="LicenseExpiry" id="licenseExpiry" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="licenseClass">License Class <span class="required">*</span></label>
+                    <select name="LicenseClass" id="licenseClass" required>
+                        <option value="">-- Select License Class --</option>
+                        <option value="Class A">Class A (Heavy Commercial)</option>
+                        <option value="Class B">Class B (Light Commercial)</option>
+                        <option value="Class C">Class C (Regular)</option>
+                        <option value="Class D">Class D (Two Wheeler)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="issuingState">Issuing State/Authority <span class="required">*</span></label>
+                    <input type="text" name="IssuingState" id="issuingState" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="licenseDocument">Upload License Document <span class="required">*</span></label>
+                <input type="file" name="LicenseDocument" id="licenseDocument" accept=".pdf,.jpg,.jpeg,.png" required />
+                <div class="file-upload-hint">Accepted formats: PDF, JPG, PNG (Max 5MB)</div>
+            </div>
+        </div>
+
+        <!-- Background Check Section -->
+        <div class="form-section">
+            <h3>Background Check Integration</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nationalId">National ID/SSN <span class="required">*</span></label>
+                    <input type="text" name="NationalId" id="nationalId" required />
+                </div>
+                <div class="form-group">
+                    <label for="emergencyContact">Emergency Contact <span class="required">*</span></label>
+                    <input type="tel" name="EmergencyContact" id="emergencyContact" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="criminalRecord">Criminal Record Declaration</label>
+                <select name="CriminalRecord" id="criminalRecord" required>
+                    <option value="">-- Select --</option>
+                    <option value="None">No Criminal Record</option>
+                    <option value="Minor">Minor Offenses (Traffic violations, etc.)</option>
+                    <option value="Major">Major Offenses (Will require additional verification)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="backgroundDocument">Upload Background Check Document</label>
+                <input type="file" name="BackgroundDocument" id="backgroundDocument" accept=".pdf,.jpg,.jpeg,.png" />
+                <div class="file-upload-hint">Police clearance certificate or similar document</div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="ConsentBackgroundCheck" id="consentBackgroundCheck" required />
+                <label for="consentBackgroundCheck">I consent to background verification checks <span class="required">*</span></label>
+            </div>
+        </div>
+
+        <!-- Driving Experience Section -->
+        <div class="form-section">
+            <h3>Driving Experience Validation</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="yearsOfExperience">Years of Driving Experience <span class="required">*</span></label>
+                    <input type="number" name="YearsOfExperience" id="yearsOfExperience" min="1" max="50" required />
+                </div>
+                <div class="form-group">
+                    <label for="kilometersDriven">Approximate Kilometers Driven</label>
+                    <input type="number" name="KilometersDriven" id="kilometersDriven" min="0" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="vehicleTypes">Vehicle Types Experience</label>
+                <select name="VehicleTypesExperience" id="vehicleTypes" multiple size="4">
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Commercial">Commercial Vehicles</option>
+                    <option value="Motorcycle">Motorcycle</option>
+                    <option value="Truck">Truck</option>
+                </select>
+                <div class="file-upload-hint">Hold Ctrl/Cmd to select multiple options</div>
+            </div>
+            <div class="form-group">
+                <label for="accidentHistory">Accident History (Last 5 years)</label>
+                <textarea name="AccidentHistory" id="accidentHistory" placeholder="Describe any accidents or traffic violations in the last 5 years. Enter 'None' if no accidents."></textarea>
+            </div>
+        </div>
+
+        <!-- Professional Driving History Section -->
+        <div class="form-section">
+            <h3>Professional Driving History</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" name="HasProfessionalExperience" id="hasProfessionalExperience" />
+                <label for="hasProfessionalExperience">I have professional driving experience</label>
+            </div>
+
+            <div id="professionalDetails" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="previousEmployer">Previous Employer/Company</label>
+                        <input type="text" name="PreviousEmployer" id="previousEmployer" />
+                    </div>
+                    <div class="form-group">
+                        <label for="employmentDuration">Employment Duration</label>
+                        <input type="text" name="EmploymentDuration" id="employmentDuration" placeholder="e.g., 2 years 3 months" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="professionalLicenseNumber">Professional/Commercial License Number</label>
+                        <input type="text" name="ProfessionalLicenseNumber" id="professionalLicenseNumber" />
+                    </div>
+                    <div class="form-group">
+                        <label for="referenceContact">Reference Contact</label>
+                        <input type="tel" name="ReferenceContact" id="referenceContact" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="professionalDocument">Upload Professional License/Certificate</label>
+                    <input type="file" name="ProfessionalDocument" id="professionalDocument" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+                <div class="form-group">
+                    <label for="workDescription">Work Description & Achievements</label>
+                    <textarea name="WorkDescription" id="workDescription" placeholder="Describe your professional driving experience, types of vehicles driven, routes covered, etc."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="form-section">
+            <div class="checkbox-group">
+                <input type="checkbox" name="AgreeTerms" id="agreeTerms" required />
+                <label for="agreeTerms">I agree to the Terms and Conditions and Privacy Policy <span class="required">*</span></label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="ConsentDataProcessing" id="consentDataProcessing" required />
+                <label for="consentDataProcessing">I consent to processing of my personal data for verification purposes <span class="required">*</span></label>
+            </div>
+        </div>
+
+        <button type="submit">Submit Profile for Approval</button>
+    </form>
+</div>
+
+<script>
+    // Show/hide professional experience details
+    document.getElementById('hasProfessionalExperience').addEventListener('change', function () {
+        const professionalDetails = document.getElementById('professionalDetails');
+        if (this.checked) {
+            professionalDetails.style.display = 'block';
+        } else {
+            professionalDetails.style.display = 'none';
+        }
+    });
+
+    // Set minimum date for license expiry (should be future date)
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('licenseExpiry').setAttribute('min', today);
+
+    // Set maximum date for date of birth (must be at least 18 years old)
+    const eighteenYearsAgo = new Date();
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+    document.getElementById('dateOfBirth').setAttribute('max', eighteenYearsAgo.toISOString().split('T')[0]);
