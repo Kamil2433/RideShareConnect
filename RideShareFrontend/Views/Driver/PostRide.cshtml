@@ -122,7 +122,7 @@
     <div class="form-container">
         <h2>Post a Ride</h2>
 
-        <form asp-action="PostRide" method="post"   id="postRideForm">
+        <form asp-action="PostRide" method="post" id="postRideForm">
             <div class="search-container">
                 <input type="text" id="origin-search" class="search-box" placeholder="Search origin...">
                 <button type="button" id="search-origin" class="search-button">Search</button>
@@ -160,7 +160,14 @@
                 <input type="number" asp-for="PricePerSeat" step="0.01" min="0" required />
             </div>
 
-            <button type="submit">Post Ride</button>
+            <div class="form-group">
+                <label asp-for="RoutePoints">Route Points</label>
+                <input type="text" id="routePoints-input" asp-for="RoutePoints" placeholder="e.g., Pune, Satara, Kolhapur" />
+                <p class="instructions">Enter intermediate route points (comma-separated)</p>
+            </div>
+
+
+            <button type="submit" id="submitButton">Post Ride</button>
         </form>
     </div>
 
@@ -216,22 +223,10 @@
             const query = destinationSearch.value;
             if (query) {
                 searchLocation(query, setDestination, function () {
-                   drawRoute();
+                    if (originMarker) drawRoute();
                 });
             }
         });
-
-        //function searchLocation(query, callback, success) {
-        //    provider.search({ query: query })
-        //        .then(function (result) {
-        //            if (result.length > 0) {
-        //                const latlng = L.latLng(result[0].y, result[0].x);
-        //                map.setView(latlng, 13);
-        //                callback(latlng);
-        //                if (success) success();
-        //            }
-        //        });
-        //}
 
         function setOrigin(latlng) {
             if (originMarker) map.removeLayer(originMarker);
@@ -275,8 +270,11 @@
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data && data.display_name) {
-                        inputBox.value = data.display_name;
+                    console.log(data);
+
+                    if (data) {
+                        let val = data.address.county || data.address.state_district
+                        inputBox.value = val;
                     }
                 })
                 .catch(error => console.error('Geocoding error:', error));
@@ -326,14 +324,16 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                         },
                         body: JSON.stringify({
                             Origin: document.getElementById('origin-input').value,
                             Destination: document.getElementById('destination-input').value,
                             DepartureTime: document.querySelector('[name="DepartureTime"]').value,
                             AvailableSeats: parseInt(document.querySelector('[name="AvailableSeats"]').value),
-                            PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value)
+                            PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value),
+                            RoutePoints: document.getElementById('routePoints-input').value.trim()
+
                         })
                     });
 
@@ -351,7 +351,7 @@
             });
         });
 
-        async function searchLocation(query, callback) {
+        async function searchLocation(query, callback, success) {
             try {
                 const response = await fetch(`/geocode?q=${encodeURIComponent(query)}`);
 
@@ -361,9 +361,12 @@
 
                 const results = await response.json();
 
+                console.log(results);
+
                 if (results.length > 0) {
                     const latlng = L.latLng(results[0].lat, results[0].lon);
                     callback(latlng);
+                    if (success) success();
                     return true;
                 }
                 return false;
@@ -373,6 +376,20 @@
                 return false;
             }
         }
+
+
+        //function searchLocation(query, callback, success) {
+        //    provider.search({ query: query })
+        //        .then(function (result) {
+        //            if (result.length > 0) {
+        //                const latlng = L.latLng(result[0].y, result[0].x);
+        //                map.setView(latlng, 13);
+        //                callback(latlng);
+        //                if (success) success();
+        //            }
+        //        });
+        //}
+
 
 
         // Helper function to get the auth token (you'll need to implement this based on how you store tokens)

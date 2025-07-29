@@ -33,10 +33,11 @@ namespace RideShareConnect.Dtos
         [Range(0, double.MaxValue)]
         public decimal PricePerSeat { get; set; }
 
-        public string RideType { get; set; }
-        public string Status { get; set; }
-        public string Notes { get; set; }
+        public string? RideType { get; set; }
+        public string? Status { get; set; }
+        public string? Notes { get; set; }
 
         public bool IsRecurring { get; set; }
+        public string? RoutePoints { get; set; }
     }
 }

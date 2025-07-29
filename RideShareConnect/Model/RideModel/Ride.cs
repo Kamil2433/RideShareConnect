@@ -37,12 +37,12 @@ namespace RideShareConnect.Models
         public decimal PricePerSeat { get; set; }
 
         [StringLength(50)]
-        public string RideType { get; set; } // "OneTime", "Recurring"
+        public string? RideType { get; set; } // Optional
 
         [StringLength(50)]
-        public string Status { get; set; } // "Scheduled", "Completed", "Cancelled"
+        public string? Status { get; set; } // Optional
 
-        public string Notes { get; set; }
+        public string? Notes { get; set; } // Optional
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
