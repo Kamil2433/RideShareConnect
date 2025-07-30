@@ -41,8 +41,9 @@ namespace RideShareConnect.Models
         [Required]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Relationships
-        // public ICollection<VehicleDocument> VehicleDocuments { get; set; } = new List<VehicleDocument>();
-        // public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
+        // ✅ Navigation Properties
+        public virtual DriverProfile Driver { get; set; } = null!;
+        public virtual ICollection<VehicleDocument> VehicleDocuments { get; set; } = new List<VehicleDocument>();
+        public virtual ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
     }
 }

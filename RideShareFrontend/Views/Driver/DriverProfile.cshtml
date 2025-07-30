@@ -163,7 +163,7 @@
 
     <form asp-controller="Driver" asp-action="SubmitProfile" method="post" enctype="multipart/form-data">
 
-        <!-- Personal Information Section -->
+      
         <div class="form-section">
             <h3>Personal Information</h3>
             <div class="form-row">
@@ -192,7 +192,7 @@
             </div>
         </div>
 
-        <!-- Driver License Verification Section -->
+        
         <div class="form-section">
             <h3>Driver License Verification</h3>
             <div class="form-row">
@@ -228,7 +228,7 @@
             </div>
         </div>
 
-        <!-- Background Check Section -->
+        
         <div class="form-section">
             <h3>Background Check Integration</h3>
             <div class="form-row">
@@ -261,7 +261,7 @@
             </div>
         </div>
 
-        <!-- Driving Experience Section -->
+       
         <div class="form-section">
             <h3>Driving Experience Validation</h3>
             <div class="form-row">
@@ -292,7 +292,7 @@
             </div>
         </div>
 
-        <!-- Professional Driving History Section -->
+        
         <div class="form-section">
             <h3>Professional Driving History</h3>
             <div class="checkbox-group">
@@ -332,7 +332,7 @@
             </div>
         </div>
 
-        <!-- Terms and Conditions -->
+       
         <div class="form-section">
             <div class="checkbox-group">
                 <input type="checkbox" name="AgreeTerms" id="agreeTerms" required />
@@ -349,7 +349,7 @@
 </div>
 
 <script>
-    // Show/hide professional experience details
+   
     document.getElementById('hasProfessionalExperience').addEventListener('change', function () {
         const professionalDetails = document.getElementById('professionalDetails');
         if (this.checked) {
@@ -359,11 +359,11 @@
         }
     });
 
-    // Set minimum date for license expiry (should be future date)
+    
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('licenseExpiry').setAttribute('min', today);
 
-    // Set maximum date for date of birth (must be at least 18 years old)
+   
     const eighteenYearsAgo = new Date();
     eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
     document.getElementById('dateOfBirth').setAttribute('max', eighteenYearsAgo.toISOString().split('T')[0]);

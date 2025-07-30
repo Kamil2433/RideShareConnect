@@ -66,6 +66,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
+builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
+builder.Services.AddScoped<IDriverProfileServiceRepository, DriverProfileService>(); 
+builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
+builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
 
 
 var app = builder.Build();

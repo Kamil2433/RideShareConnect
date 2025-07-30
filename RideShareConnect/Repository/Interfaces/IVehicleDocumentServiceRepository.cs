@@ -5,9 +5,9 @@ namespace RideShareConnect.Repository.Interfaces
 {
 	public interface IVehicleDocumentServiceRepository
 	{
-		Task UploadDocument(VehicleDocument vehicleDocument);
-		Task VerifyDocument(int documentId );
+		Task UploadDocument(VehicleDocument doc);
+		Task VerifyDocument(int id);
 		Task<bool> CheckExpiry(int vehicleID);
-		Task<int> RenewDocument(int documentId);
+		Task<int> RenewDocument(int id);
 	}
 }

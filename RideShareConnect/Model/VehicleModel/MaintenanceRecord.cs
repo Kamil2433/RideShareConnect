@@ -32,5 +32,6 @@ namespace RideShareConnect.Models
 		// Navigation
 		// [ForeignKey("VehicleId")]
 		// public Vehicle? Vehicle { get; set; }
+		public virtual Vehicle Vehicle { get; set; } = null!;
 	}
 }

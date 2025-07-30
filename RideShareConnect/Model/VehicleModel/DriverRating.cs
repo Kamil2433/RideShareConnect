@@ -30,5 +30,6 @@ namespace RideShareConnect.Models
 		// Navigation
 		// [ForeignKey("DriverId")]
 		// public DriverProfile? Driver { get; set; }
+		public virtual DriverProfile Driver { get; set; } = null!;
 	}
 }
