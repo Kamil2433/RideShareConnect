@@ -62,7 +62,7 @@ namespace RideShareConnect.Controllers.UserAuth
             await _userAuthRepository.AddTwoFactorCodeAsync(twoFactorCode);
             await _userAuthRepository.SaveChangesAsync();
 
-            await _emailService.SendEmailAsync(user.Email, "Verify Your Email", $"Your OTP for email verification is {otp}");
+            await _emailService.SendEmailAsync(user.Email, "Verify Your Email for Rideshare", $"Your OTP for email verification is {otp}");
 
             return Ok(new UserAuthRegisterResponseDto { Message = "Registration successful. Please check your email for the OTP to verify your account." });
         }
