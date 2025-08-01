@@ -88,6 +88,13 @@
                 window.location.href = "/";
             }
         }
+
+
+        function logout() {
+        localStorage.removeItem("jwt_token");
+        alert("You have been logged out.");
+        window.location.href = "/";
+    }
     </script>
 
 

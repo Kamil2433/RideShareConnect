@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RideShareConnect.Controllers
 {
-
+[Authorize(Roles = "Driver")]
     public class DriverController : Controller
     {
         public IActionResult Index()

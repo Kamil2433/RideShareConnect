@@ -15,5 +15,6 @@ namespace RideShareConnect.MappingProfiles
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
         }
+        
     }
 }

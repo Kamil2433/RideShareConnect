@@ -229,50 +229,33 @@ async function handleLogin(event) {
 
     const email = document.querySelector('#login-popup input[name="Email"]').value.trim();
     const password = document.querySelector('#login-popup input[name="Password"]').value.trim();
-
-    const payload = {
-        Email: email,
-        Password: password
-    };
+    const payload = { Email: email, Password: password };
 
     try {
         const response = await fetch('http://localhost:5157/api/auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // important for cookie
             body: JSON.stringify(payload)
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-            const errorText = await response.text();
-            alert("Login failed: " + errorText);
+            alert("Login failed: " + (result.message || "Something went wrong"));
             return;
         }
 
-        const data = await response.json();
-        const token = data.Token;
+        const role = result.role;
 
-        // Store token
-        localStorage.setItem("jwt_token", token);
-
-        // Decode JWT to get role
-        const payloadBase64 = token.split('.')[1];
-        const decodedPayload = JSON.parse(atob(payloadBase64));
-        const role = decodedPayload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-        console.log(role);
-    
-        // Redirect based on role
         if (role === "Passenger") {
             window.location.href = "/Passenger";
         } else if (role === "Driver") {
             window.location.href = "/Driver";
-        } 
-        else if(role ==="Admin"){
+        } else if (role === "Admin") {
             window.location.href = "/Admin";
-        }
-        else {
-            alert("Unknown user role.");
+        } else {
+            alert("Unrecognized role.");
         }
 
     } catch (error) {
