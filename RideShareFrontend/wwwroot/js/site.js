@@ -255,6 +255,7 @@ async function handleLogin(event) {
 
         // Store token
         localStorage.setItem("jwt_token", token);
+        sessionStorage.setItem("jwt_token", token);
 
         // Decode JWT to get role
         const payloadBase64 = token.split('.')[1];

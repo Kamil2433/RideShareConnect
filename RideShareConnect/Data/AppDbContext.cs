@@ -22,6 +22,8 @@ namespace RideShareConnect.Data
         public DbSet<RoutePoint> RoutePoints { get; set; }
         public DbSet<RideRequest> RideRequests { get; set; }
 
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

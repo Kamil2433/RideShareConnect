@@ -1,9 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
+// ✅ Add session support
+builder.Services.AddSession();
+
+// ✅ Register session-backed TempData provider
+//builder.Services.AddSingleton<ITempDataProvider, SessionStateTempDataProvider>();
+builder.Services.AddSingleton<ITempDataProvider, SessionStateTempDataProvider>();
 
 // If you're using cookie auth only for temporary manual role-based view control
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -37,7 +46,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add services to the container.
+builder.Services.AddControllersWithViews();
 
+// ✅ Register IHttpClientFactory
+builder.Services.AddHttpClient();
+
+// ✅ Optional but recommended if you're using TempData/Session
+builder.Services.AddSession();
 
 
 var app = builder.Build();
@@ -50,6 +66,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -57,6 +74,8 @@ app.UseRouting();
 
 app.UseAuthentication(); // This is fine, even if auth is via frontend
 app.UseAuthorization();
+app.UseSession();
+
 
 // Route config
 app.MapControllerRoute(

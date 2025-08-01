@@ -1,7 +1,7 @@
-@model RideShareFrontend.Models.DTOs.RideCreateDto
+@model RideShareFrontend.DTOs.RideCreateDto
 
 @{
-    ViewData["Title"] = "Post a Ride";
+    ViewData["Title"] = ViewData["Title"] ?? "Post Ride"; // Fallback
     Layout = "~/Views/Shared/_DriverLayout.cshtml";
 }
 
@@ -121,53 +121,77 @@
 <body>
     <div class="form-container">
         <h2>Post a Ride</h2>
+        @* Show TempData messages *@
+        @if (ViewBag.Msg != null)
+        {
+        <div class="alert alert-warning">@ViewBag.Msg</div>
+        }
+        @if (ViewBag.Error != null)
+        {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        @if (ViewBag.Success != null)
+        {
+        <div class="alert alert-success">@ViewBag.Success</div>
+        }
 
         <form asp-action="PostRide" method="post" id="postRideForm">
+            @Html.AntiForgeryToken()
+
+            <!-- Display summary of errors at top -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="search-container">
-                <input type="text" id="origin-search" class="search-box" placeholder="Search origin...">
+                <input type="text" id="origin-search" class="search-box" placeholder="Search origin..." />
                 <button type="button" id="search-origin" class="search-button">Search</button>
             </div>
             <div class="form-group">
-                <label asp-for="Origin">Origin</label>
-                <input type="text" id="origin-input" asp-for="Origin" required />
+                <label asp-for="Origin"></label>
+                <input asp-for="Origin" class="form-control" id="origin-input" />
+                <span asp-validation-for="Origin" class="text-danger"></span>
                 <p class="instructions">Or click on the map to set origin</p>
             </div>
 
             <div class="search-container">
-                <input type="text" id="destination-search" class="search-box" placeholder="Search destination...">
+                <input type="text" id="destination-search" class="search-box" placeholder="Search destination..." />
                 <button type="button" id="search-destination" class="search-button">Search</button>
             </div>
             <div class="form-group">
-                <label asp-for="Destination">Destination</label>
-                <input type="text" id="destination-input" asp-for="Destination" required />
+                <label asp-for="Destination"></label>
+                <input asp-for="Destination" class="form-control" id="destination-input" />
+                <span asp-validation-for="Destination" class="text-danger"></span>
                 <p class="instructions">Or click on the map to set destination</p>
             </div>
 
             <div id="map" class="map-container"></div>
 
             <div class="form-group">
-                <label asp-for="DepartureTime">Departure Time</label>
-                <input type="datetime-local" asp-for="DepartureTime" required />
+                <label asp-for="DepartureTime"></label>
+                <input asp-for="DepartureTime" type="datetime-local" class="form-control"
+                       value="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="DepartureTime" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="AvailableSeats">Available Seats</label>
-                <input type="number" asp-for="AvailableSeats" min="1" required />
+                <label asp-for="AvailableSeats"></label>
+                <input asp-for="AvailableSeats" type="number" class="form-control" min="1" max="10" />
+                <span asp-validation-for="AvailableSeats" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="PricePerSeat">Price Per Seat ($)</label>
-                <input type="number" asp-for="PricePerSeat" step="0.01" min="0" required />
+                <label asp-for="PricePerSeat"></label>
+                <input asp-for="PricePerSeat" type="number" step="0.01" class="form-control" min="0.01" />
+                <span asp-validation-for="PricePerSeat" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="RoutePoints">Route Points (In Sequence)</label>
-                <input type="text" id="routePoints-input" asp-for="RoutePoints" placeholder="e.g., Pune, Satara, Kolhapur" />
+                <label asp-for="RoutePoints"></label>
+                <input asp-for="RoutePoints" class="form-control" />
+                <span asp-validation-for="RoutePoints" class="text-danger"></span>
                 <p class="instructions">Enter intermediate route points (comma-separated)</p>
             </div>
 
-
-            <button type="submit" id="submitButton">Post Ride</button>
+            <button type="submit" class="btn btn-primary">Post Ride</button>
         </form>
     </div>
 
@@ -179,6 +203,13 @@
     <script src="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.umd.js"></script>
 
     <script>
+        function handleFormSubmit() {
+            console.log("Form submission started"); // Check browser console
+            //document.getElementById('formStatus').textContent = "Form is submitting...";
+            return true; // Allow form to submit
+        }
+
+
         // Initialize map centered on India
         let map = L.map('map').setView([20.5937, 78.9629], 5);
         let originMarker, destinationMarker;
@@ -266,19 +297,37 @@
             });
         }
 
-        function reverseGeocode(latlng, inputBox) {
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
+        async function reverseGeocode(latlng, inputBox) {
+            try {
+                const response = await fetch(`/reverse-geocode?lat=${latlng.lat}&lng=${latlng.lng}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log(data);
 
-                    if (data) {
-                        let val = data.address.county || data.address.state_district
-                        inputBox.value = val;
-                    }
-                })
-                .catch(error => console.error('Geocoding error:', error));
+                if (data && data.address) {
+                    let val = data.address.county || data.address.state_district || data.address.state || data.address.city;
+                    inputBox.value = val;
+                }
+            } catch (error) {
+                console.error('Geocoding error:', error);
+            }
         }
+
+        //function reverseGeocode(latlng, inputBox) {
+        //    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
+        //        .then(response => response.json())
+        //        .then(data => {
+        //            console.log(data);
+
+        //            if (data) {
+        //                let val = data.address.county || data.address.state_district
+        //                inputBox.value = val;
+        //            }
+        //        })
+        //        .catch(error => console.error('Geocoding error:', error));
+        //}
 
         function drawRoute() {
             if (!originMarker || !destinationMarker) return;
@@ -302,54 +351,56 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('postRideForm');
+        //document.addEventListener('DOMContentLoaded', function () {
+        //    const form = document.getElementById('postRideForm');
 
-            // Check if form exists before adding listener
-            if (!form) {
-                console.error('Could not find form with ID "postRideForm"');
-                return;
-            }
+        //    // Check if form exists before adding listener
+        //    if (!form) {
+        //        console.error('Could not find form with ID "postRideForm"');
+        //        return;
+        //    }
 
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
+        //    //fix this ----
 
-                // Show loading state
-                const submitBtn = document.getElementById('submitButton');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Posting...';
+        //    form.addEventListener('submit', async function (e) {
+        //        e.preventDefault();
 
-                try {
-                    const response = await fetch('http://localhost:5157/api/Ride', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-                        },
-                        body: JSON.stringify({
-                            Origin: document.getElementById('origin-input').value,
-                            Destination: document.getElementById('destination-input').value,
-                            DepartureTime: document.querySelector('[name="DepartureTime"]').value,
-                            AvailableSeats: parseInt(document.querySelector('[name="AvailableSeats"]').value),
-                            PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value),
-                            RoutePoints: document.getElementById('routePoints-input').value.trim()
+        //        // Show loading state
+        //        const submitBtn = document.getElementById('submitButton');
+        //        submitBtn.disabled = true;
+        //        submitBtn.textContent = 'Posting...';
 
-                        })
-                    });
+        //        try {
+        //            const response = await fetch('http://localhost:5157/api/Ride', {
+        //                method: 'POST',
+        //                headers: {
+        //                    'Content-Type': 'application/json',
+        //                    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+        //                },
+        //                body: JSON.stringify({
+        //                    Origin: document.getElementById('origin-input').value,
+        //                    Destination: document.getElementById('destination-input').value,
+        //                    DepartureTime: document.querySelector('[name="DepartureTime"]').value,
+        //                    AvailableSeats: parseInt(document.querySelector('[name="AvailableSeats"]').value),
+        //                    PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value),
+        //                    RoutePoints: document.getElementById('routePoints-input').value.trim()
 
-                    if (!response.ok) throw new Error(await response.text());
+        //                })
+        //            });
 
-                    alert('Ride posted successfully!');
-                    form.reset();
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error posting ride: ' + error.message);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Post Ride';
-                }
-            });
-        });
+        //            if (!response.ok) throw new Error(await response.text());
+
+        //            alert('Ride posted successfully!');
+        //            form.reset();
+        //        } catch (error) {
+        //            console.error('Error:', error);
+        //            alert('Error posting ride: ' + error.message);
+        //        } finally {
+        //            submitBtn.disabled = false;
+        //            submitBtn.textContent = 'Post Ride';
+        //        }
+        //    });
+        //});
 
         async function searchLocation(query, callback, success) {
             try {
