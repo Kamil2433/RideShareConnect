@@ -20,17 +20,37 @@ namespace RideShareConnect.Repositories
         }
 
 
+
         public async Task<IEnumerable<Ride>> SearchRidesAsync(RideSearchDto searchDto)
         {
-            return await _context.Rides
+            var originLower = searchDto.Origin.ToLower();
+            var destinationLower = searchDto.Destination.ToLower();
+            var searchDate = searchDto.DepartureDate.Date;
+
+            var matchingRides = await _context.Rides
                 .Where(r =>
-                    r.Origin.ToLower() == searchDto.Origin.ToLower() &&
-                    r.Destination.ToLower() == searchDto.Destination.ToLower() &&
-                    r.DepartureTime.Date == searchDto.DepartureDate.Date &&
+                    r.DepartureTime.Date == searchDate &&
                     r.Status == "Scheduled" &&
-                    r.AvailableSeats > 0)
+                    r.AvailableSeats > 0 &&
+                    _context.RoutePoints.Any(o =>
+                        o.RideId == r.RideId &&
+                        o.LocationName.ToLower() == originLower) &&
+                    _context.RoutePoints.Any(d =>
+                        d.RideId == r.RideId &&
+                        d.LocationName.ToLower() == destinationLower &&
+                        d.SequenceOrder >
+                            _context.RoutePoints
+                                .Where(o => o.RideId == r.RideId && o.LocationName.ToLower() == originLower)
+                                .Select(o => o.SequenceOrder)
+                                .FirstOrDefault()
+                    )
+                )
+                .Include(r => r.RoutePoints)
                 .ToListAsync();
+
+            return matchingRides;
         }
+
 
 
 
