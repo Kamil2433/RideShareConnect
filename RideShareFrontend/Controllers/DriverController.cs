@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 
 namespace RideShareConnect.Controllers
 {
+[Authorize(Roles = "Driver")]
     public class DriverController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;

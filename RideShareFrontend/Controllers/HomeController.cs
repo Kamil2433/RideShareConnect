@@ -17,6 +17,12 @@ public class HomeController : Controller
     {
         return View();
     }
+    
+     [HttpPost("/Logout")]
+    public IActionResult Logout()
+    {
+        return RedirectToAction("Index", "Home");
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
