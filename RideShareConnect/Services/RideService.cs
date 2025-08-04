@@ -1,6 +1,7 @@
 using RideShareConnect.Dtos;
 using RideShareConnect.Models;
-using RideShareConnect.Repositories;
+using RideShareConnect.Repository.Implements;
+using RideShareConnect.Repository.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

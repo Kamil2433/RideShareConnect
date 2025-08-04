@@ -6,9 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using RideShareConnect.Dtos;
 using RideShareConnect.Models;
-using RideShareConnect.Repositories;
+using RideShareConnect.Repository.Interfaces;
 
-namespace RideShareConnect.Repositories
+namespace RideShareConnect.Repository.Implements
 {
     public class RideRepository : IRideRepository
     {

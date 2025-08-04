@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RideShareConnect.Dtos;
 
-namespace RideShareConnect.Repositories
+namespace RideShareConnect.Repository.Interfaces
 {
     public interface IRideRepository
     {
