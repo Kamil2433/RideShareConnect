@@ -1,4 +1,4 @@
-namespace RideShareConnect.DTOs
+namespace RideShareConnect.Dtos
 {
     public class UserProfileDto
     {

@@ -6,22 +6,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MVC + CORS
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBackend", policy =>
-    {
-        policy.WithOrigins("http://localhost:5157")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
+    options.AddPolicy("AllowBackend", policy =>
+  {
+ policy.WithOrigins("http://localhost:5157")
+ .AllowAnyHeader()
+.AllowAnyMethod()
+.AllowCredentials();
+ });
 });
 
 // Cookie settings for JWT storage
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.Lax;
-    options.Secure = CookieSecurePolicy.None;
+ options.MinimumSameSitePolicy = SameSiteMode.Lax;
+ options.Secure = CookieSecurePolicy.None;
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -84,6 +86,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
 // ------------------- PIPELINE -------------------
 app.UseHttpsRedirection();

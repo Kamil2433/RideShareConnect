@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/passengerSidebar.css" />
     @RenderSection("Styles", required: false)
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  
 </head>
 
 <body>
@@ -22,7 +23,7 @@
         <nav class="sidebar">
             <div class="sidebar-header">
                 <div class="user-avatar"><i class="fas fa-user"></i></div>
-                <h3><a href="/Passenger/">PASSENGER PROFILE</a></h3>
+                <h3><a href="/Passenger/PassengerProfile">PASSENGER PROFILE</a></h3>
             </div>
 
             <ul class="sidebar-menu">
@@ -53,5 +54,10 @@
         @RenderBody()
     </main>
 </div>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    
+@RenderSection("Scripts", required: false)
 </body>
 </html>
