@@ -138,8 +138,6 @@ app.Use(async (context, next) =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseSession();
-
 
 app.MapControllerRoute(
     name: "default",
