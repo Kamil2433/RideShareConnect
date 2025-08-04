@@ -49,8 +49,7 @@ out/
 secrets.json
 
 # EF Migrations (optional)
-**/Migrations/*.Designer.cs
-**/Migrations/*Snapshot.cs
+
 
 # NuGet
 *.nupkg
