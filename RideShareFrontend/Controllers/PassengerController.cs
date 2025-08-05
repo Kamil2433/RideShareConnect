@@ -31,10 +31,9 @@ namespace RideShareConnect.Controllers
         private void SetAuthorizationHeader()
         {
             var token = HttpContext.Request.Cookies["jwt"];
-            Console.WriteLine(token,"This is token");
             if (!string.IsNullOrEmpty(token))
             {
-                _httpClient.DefaultRequestHeaders.Authorization =
+                _httpClient.DefaultRequestHeaders.Authorization = 
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 _logger.LogInformation("JWT token set in Authorization header");
             }
