@@ -49,8 +49,8 @@ namespace RideShareConnect.Controllers
             try
             {
                 var client = _httpClientFactory.CreateClient("ApiClient");
-         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
 
                 var response = await client.PostAsJsonAsync("api/Ride", ride);
 

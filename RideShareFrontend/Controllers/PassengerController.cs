@@ -5,6 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using RideShareConnect.Models;
 using System.Text;
 using System.Text.Json;
+using RideShareFrontend.DTOs;
+using System.Net.Http.Headers;
 
 namespace RideShareConnect.Controllers
 {
@@ -20,7 +22,7 @@ namespace RideShareConnect.Controllers
             _httpClient = httpClientFactory.CreateClient();
             _configuration = configuration;
             _logger = logger;
-            
+
             // Set base address for API
             var apiBaseUrl = _configuration["ApiSettings:BaseUrl"];
             _httpClient.BaseAddress = new Uri(apiBaseUrl);
@@ -31,7 +33,7 @@ namespace RideShareConnect.Controllers
         private void SetAuthorizationHeader()
         {
             var token = HttpContext.Request.Cookies["jwt"];
-            Console.WriteLine(token,"This is token");
+            Console.WriteLine(token, "This is token");
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization =
@@ -81,10 +83,74 @@ namespace RideShareConnect.Controllers
             return View();
         }
 
-         public IActionResult SearchRide()
+        [HttpGet]
+        public IActionResult SearchRide()
         {
             return View();
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SearchRide(RideSearchRequestDto searchDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid input. Please check your fields.";
+                return View(searchDto);
+            }
+
+            var token = HttpContext.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Unauthorized. Please log in.";
+                return RedirectToAction("SearchRide");
+            }
+
+            try
+            {
+                var client = _httpClient;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                // 🔁 Map frontend DTO → backend DTO
+                var backendSearchDto = new
+                {
+                    Origin = searchDto.Origin,
+                    Destination = searchDto.Destination,
+                    DepartureDate = searchDto.RideDate
+                };
+
+                var response = await client.PostAsJsonAsync("api/ride/search", backendSearchDto);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    var rideResults = JsonSerializer.Deserialize<List<RideViewModel>>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    ViewBag.RideResults = rideResults ?? new List<RideViewModel>();
+                    return View(searchDto);
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = "Failed to search rides. Please try again.";
+                _logger.LogError($"API Error: {response.StatusCode} - {errorContent}");
+                return View(searchDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during search.");
+                TempData["Error"] = "An unexpected error occurred.";
+                return View(searchDto);
+            }
+        }
+
+
+
 
         [HttpGet("pgeocode")]
         [AllowAnonymous]
@@ -140,10 +206,10 @@ namespace RideShareConnect.Controllers
             try
             {
                 SetAuthorizationHeader();
-                
+
                 // Call API to get existing profile
                 var response = await _httpClient.GetAsync("api/UserProfile/me");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
@@ -151,7 +217,7 @@ namespace RideShareConnect.Controllers
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                    
+
                     if (profile != null)
                     {
                         profile.IsNewProfile = false;
@@ -177,7 +243,7 @@ namespace RideShareConnect.Controllers
                 _logger.LogError(ex, "Error loading passenger profile");
                 TempData["ErrorMessage"] = "Error loading profile. Please try again.";
             }
-            
+
             return View(new UserProfileViewModel { IsNewProfile = true });
         }
 
@@ -193,10 +259,10 @@ namespace RideShareConnect.Controllers
             try
             {
                 SetAuthorizationHeader();
-                
+
                 var json = JsonSerializer.Serialize(model);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                
+
                 HttpResponseMessage response;
                 string successMessage;
 
@@ -245,9 +311,9 @@ namespace RideShareConnect.Controllers
             try
             {
                 SetAuthorizationHeader();
-                
+
                 var response = await _httpClient.DeleteAsync("api/UserProfile/me");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     TempData["SuccessMessage"] = "Profile deleted successfully!";
@@ -277,9 +343,9 @@ namespace RideShareConnect.Controllers
             try
             {
                 SetAuthorizationHeader();
-                
+
                 var response = await _httpClient.GetAsync("api/UserProfile/me");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
@@ -287,7 +353,7 @@ namespace RideShareConnect.Controllers
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                    
+
                     return Json(new { success = true, data = profile });
                 }
                 else
