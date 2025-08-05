@@ -315,20 +315,7 @@
             }
         }
 
-        //function reverseGeocode(latlng, inputBox) {
-        //    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
-        //        .then(response => response.json())
-        //        .then(data => {
-        //            console.log(data);
-
-        //            if (data) {
-        //                let val = data.address.county || data.address.state_district
-        //                inputBox.value = val;
-        //            }
-        //        })
-        //        .catch(error => console.error('Geocoding error:', error));
-        //}
-
+        
         function drawRoute() {
             if (!originMarker || !destinationMarker) return;
 
@@ -351,56 +338,7 @@
             });
         }
 
-        //document.addEventListener('DOMContentLoaded', function () {
-        //    const form = document.getElementById('postRideForm');
-
-        //    // Check if form exists before adding listener
-        //    if (!form) {
-        //        console.error('Could not find form with ID "postRideForm"');
-        //        return;
-        //    }
-
-        //    //fix this ----
-
-        //    form.addEventListener('submit', async function (e) {
-        //        e.preventDefault();
-
-        //        // Show loading state
-        //        const submitBtn = document.getElementById('submitButton');
-        //        submitBtn.disabled = true;
-        //        submitBtn.textContent = 'Posting...';
-
-        //        try {
-        //            const response = await fetch('http://localhost:5157/api/Ride', {
-        //                method: 'POST',
-        //                headers: {
-        //                    'Content-Type': 'application/json',
-        //                    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-        //                },
-        //                body: JSON.stringify({
-        //                    Origin: document.getElementById('origin-input').value,
-        //                    Destination: document.getElementById('destination-input').value,
-        //                    DepartureTime: document.querySelector('[name="DepartureTime"]').value,
-        //                    AvailableSeats: parseInt(document.querySelector('[name="AvailableSeats"]').value),
-        //                    PricePerSeat: parseFloat(document.querySelector('[name="PricePerSeat"]').value),
-        //                    RoutePoints: document.getElementById('routePoints-input').value.trim()
-
-        //                })
-        //            });
-
-        //            if (!response.ok) throw new Error(await response.text());
-
-        //            alert('Ride posted successfully!');
-        //            form.reset();
-        //        } catch (error) {
-        //            console.error('Error:', error);
-        //            alert('Error posting ride: ' + error.message);
-        //        } finally {
-        //            submitBtn.disabled = false;
-        //            submitBtn.textContent = 'Post Ride';
-        //        }
-        //    });
-        //});
+       
 
         async function searchLocation(query, callback, success) {
             try {

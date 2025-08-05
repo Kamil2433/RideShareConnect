@@ -85,7 +85,7 @@ namespace RideShareConnect.Controllers
             return View();
         }
 
-         [HttpGet("geocode")]
+        [HttpGet("pgeocode")]
         [AllowAnonymous]
         public async Task<IActionResult> Geocode([FromQuery(Name = "q")] string query)
         {
@@ -111,7 +111,7 @@ namespace RideShareConnect.Controllers
         }
 
 
-        [HttpGet("reverse-geocode")]
+        [HttpGet("preverse-geocode")]
         [AllowAnonymous]
         public async Task<IActionResult> ReverseGeocode([FromQuery] double lat, [FromQuery] double lng)
         {
