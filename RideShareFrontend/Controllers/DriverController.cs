@@ -44,7 +44,8 @@ namespace RideShareConnect.Controllers
                     return View(ride);
                 }
 
-                var token = HttpContext.Session.GetString("jwt_token");
+                 var token = context.Request.Cookies["jwt"];
+
                 Console.WriteLine(token);
                 if (string.IsNullOrEmpty(token))
                 {
