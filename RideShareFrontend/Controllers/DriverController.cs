@@ -20,6 +20,11 @@ namespace RideShareConnect.Controllers
             return View(); // This will look for Views/Driver/PostRide.cshtml
         }
 
+        public IActionResult DriverProfile()
+        {
+            return View(); // This will look for Views/Driver/PostRide.cshtml
+        }
+
     }
 
 
