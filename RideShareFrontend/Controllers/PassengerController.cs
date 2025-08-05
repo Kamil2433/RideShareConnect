@@ -80,6 +80,59 @@ namespace RideShareConnect.Controllers
             return View();
         }
 
+         public IActionResult SearchRide()
+        {
+            return View();
+        }
+
+         [HttpGet("geocode")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Geocode([FromQuery(Name = "q")] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query parameter is required.");
+
+            try
+            {
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0 (kamilmulani2433@gmail.com)");
+
+                var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(query)}&format=json";
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                return Content(content, "application/json");
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(503, $"Geocoding service unavailable: {ex.Message}");
+            }
+        }
+
+
+        [HttpGet("reverse-geocode")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ReverseGeocode([FromQuery] double lat, [FromQuery] double lng)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0 (kamilmulani2433@gmail.com)");
+
+                var url = $"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lng}";
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                return Content(content, "application/json");
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(503, $"Reverse geocoding service unavailable: {ex.Message}");
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> PassengerProfile()
         {

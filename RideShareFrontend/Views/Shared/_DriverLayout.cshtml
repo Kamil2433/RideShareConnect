@@ -76,18 +76,18 @@
         // Role-based protection
         const token = localStorage.getItem("jwt_token");
 
-        if (!token) {
-            alert("You must be logged in.");
-            window.location.href = "/";
-        } else {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        //if (!token) {
+        //    alert("You must be logged in.");
+        //    window.location.href = "/";
+        //} else {
+        //    const payload = JSON.parse(atob(token.split('.')[1]));
+        //    const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-            if (role !== "Driver") {
-                alert("Access Denied. Only Drivers allowed.");
-                window.location.href = "/";
-            }
-        }
+        //    if (role !== "Driver") {
+        //        alert("Access Denied. Only Drivers allowed.");
+        //        window.location.href = "/";
+        //    }
+        //}
 
 
         function logout() {
