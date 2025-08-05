@@ -56,33 +56,6 @@ namespace RideShareConnect.Controllers
 
 
 
-        [HttpGet]
-        public async Task<IActionResult> PassengerProfile()
-        {
-            try
-            {
-                var jwtCookie = HttpContext.Request.Cookies["jwt"];
-                if (string.IsNullOrEmpty(jwtCookie))
-                {
-                    _logger.LogWarning("JWT cookie not found in request");
-                    TempData["ErrorMessage"] = "You are not logged in.";
-                    return RedirectToAction("Index");
-                }
-
-                var request = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
-                request.Headers.Add("Accept", "application/json");
-                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
-
-                var response = await _httpClient.SendAsync(request);
-                _logger.LogInformation("Response Status: {StatusCode}", response.StatusCode);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var profile = JsonSerializer.Deserialize<UserProfileViewModel>(json, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
 
         public IActionResult Wallet()
         {
