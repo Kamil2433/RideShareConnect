@@ -10,7 +10,7 @@ namespace RideShareConnect.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] 
+    [Authorize]
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileRepository _repo;
@@ -21,32 +21,32 @@ namespace RideShareConnect.Controllers
             _repo = repo;
             _mapper = mapper;
         }
-        
-[Authorize]
-[HttpPost]
-public async Task<IActionResult> CreateMyProfile([FromBody] UserProfileDto dto)
-{
-    var userId = int.Parse(User.FindFirstValue("UserId") ?? "0");
 
-    // Check if profile already exists
-    var existingProfile = await _repo.GetProfileByUserIdAsync(userId);
-    if (existingProfile != null)
-    {
-        return BadRequest("Profile already exists. Use PUT or POST /me to update.");
-    }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreateMyProfile([FromBody] UserProfileDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue("UserId") ?? "0");
 
-    var profile = _mapper.Map<UserProfile>(dto);
-    profile.UserId = userId;
+            // Check if profile already exists
+            var existingProfile = await _repo.GetProfileByUserIdAsync(userId);
+            if (existingProfile != null)
+            {
+                return BadRequest("Profile already exists. Use PUT or POST /me to update.");
+            }
 
-    var success = await _repo.CreateProfileAsync(profile);
+            var profile = _mapper.Map<UserProfile>(dto);
+            profile.UserId = userId;
 
-    if (!success)
-    {
-        return StatusCode(500, "Failed to create profile.");
-    }
+            var success = await _repo.CreateProfileAsync(profile);
 
-    return Ok("Profile created successfully.");
-}
+            if (!success)
+            {
+                return StatusCode(500, "Failed to create profile.");
+            }
+
+            return Ok("Profile created successfully.");
+        }
 
 
 

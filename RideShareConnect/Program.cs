@@ -15,9 +15,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
-// Configure EF Core with MSSQL
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// // Configure EF Core with MSSQL
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
@@ -35,17 +35,34 @@ builder.Services.AddAutoMapper(typeof(UserProfileAutoMapperProfile).Assembly);
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure())
+);
+
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5125")
+        policy.WithOrigins(
+                "http://localhost:5125",
+                "https://localhost:5125")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
     });
 });
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+    });
+});
+
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -152,13 +169,15 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.Use(async (context, next) =>
 {
-    Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
-    Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
-    await next();
+    Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+    Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+    await next();
 });
+
+
 
 app.UseAuthorization();
 app.MapControllers();

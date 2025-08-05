@@ -41,7 +41,7 @@ namespace RideShareConnect.Controllers.UserAuth
             var existingUser = await _userAuthRepository.GetUserByEmailAsync(registerDto.Email);
             if (existingUser != null)
                 return Conflict("Email already exists.");
-              
+
             if (registerDto.Role != "Driver" && registerDto.Role != "Passenger" && registerDto.Role != "Admin")
                 return BadRequest("Invalid role. Must be Driver, Passenger, or Admin.");
 
@@ -90,52 +90,53 @@ namespace RideShareConnect.Controllers.UserAuth
             return Ok(new UserAuthRegisterResponseDto { Message = "Email verified successfully." });
         }
 
-      [HttpPost("login")]
-public async Task<IActionResult> Login([FromBody] UserAuthLoginDto loginDto)
-{
-    if (!ModelState.IsValid)
-        return BadRequest(ModelState);
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserAuthLoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-    var user = await _userAuthRepository.GetUserByEmailAsync(loginDto.Email);
-    if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
-        return Unauthorized("Invalid email or password.");
+            var user = await _userAuthRepository.GetUserByEmailAsync(loginDto.Email);
+            if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
+                return Unauthorized("Invalid email or password.");
 
-    if (!user.IsEmailVerified)
-        return BadRequest("Email not verified.");
+            if (!user.IsEmailVerified)
+                return BadRequest("Email not verified.");
 
-    var token = GenerateJwtToken(user);
-    var cookieOptions = new CookieOptions
-    {
-        HttpOnly = true,
-        Secure = false, // For local HTTP
-         SameSite = SameSiteMode.Lax,
-       Expires = DateTime.UtcNow.AddMinutes(60),
-        Path = "/",
-    };
+            var token = GenerateJwtToken(user);
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // For local HTTP
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddMinutes(60),
+                Path = "/",
+            };
 
-    Response.Cookies.Append("jwt", token, cookieOptions);
+            Response.Cookies.Append("jwt", token, cookieOptions);
 
-    Response.Headers.Append("Access-Control-Allow-Credentials", "true");
-    Response.Headers.Append("Access-Control-Allow-Origin", 
-        Request.Headers["Origin"].FirstOrDefault() ?? "http://localhost:5125");
+            Response.Headers.Append("Access-Control-Allow-Credentials", "true");
+            Response.Headers.Append("Access-Control-Allow-Origin",
+                Request.Headers["Origin"].FirstOrDefault() ?? "http://localhost:5125");
 
-    // Determine redirect URL based on role
-   
+            // Determine redirect URL based on role
 
-    return Ok(new { 
-        message = "Login successful.", 
-        role = user.Role, 
-       
-    });
-}
+
+            return Ok(new
+            {
+                message = "Login successful.",
+                role = user.Role,
+
+            });
+        }
 
 
         [HttpPost("logout")]
-public IActionResult Logout()
-{
-     Response.Cookies.Delete("jwt");
-    return Ok(new { message = "Logged out successfully." });
-}
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+            return Ok(new { message = "Logged out successfully." });
+        }
 
 
         private string HashPassword(string password)

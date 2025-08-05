@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RideShareConnect.Data;
 
@@ -11,9 +12,11 @@ using RideShareConnect.Data;
 namespace RideShareConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250805073427_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,51 +189,51 @@ namespace RideShareConnect.Migrations
                     b.ToTable("RideBookings");
                 });
 
-            modelBuilder.Entity("RideShareConnect.Models.RideRequest", b =>
-                {
-                    b.Property<int>("RequestId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            // modelBuilder.Entity("RideShareConnect.Models.RideRequest", b =>
+            //     {
+            //         b.Property<int>("RequestId")
+            //             .ValueGeneratedOnAdd()
+            //             .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
+            //         SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+            //         b.Property<DateTime>("CreatedAt")
+            //             .HasColumnType("datetime2");
 
-                    b.Property<string>("Destination")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+            //         b.Property<string>("Destination")
+            //             .IsRequired()
+            //             .HasMaxLength(255)
+            //             .HasColumnType("nvarchar(255)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+            //         b.Property<DateTime>("ExpiresAt")
+            //             .HasColumnType("datetime2");
 
-                    b.Property<decimal>("MaxPrice")
-                        .HasColumnType("decimal(18,2)");
+            //         b.Property<decimal>("MaxPrice")
+            //             .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Origin")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+            //         b.Property<string>("Origin")
+            //             .IsRequired()
+            //             .HasMaxLength(255)
+            //             .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("PassengerId")
-                        .HasColumnType("int");
+            //         b.Property<int>("PassengerId")
+            //             .HasColumnType("int");
 
-                    b.Property<DateTime>("PreferredTime")
-                        .HasColumnType("datetime2");
+            //         b.Property<DateTime>("PreferredTime")
+            //             .HasColumnType("datetime2");
 
-                    b.Property<int>("SeatsNeeded")
-                        .HasColumnType("int");
+            //         b.Property<int>("SeatsNeeded")
+            //             .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+            //         b.Property<string>("Status")
+            //             .IsRequired()
+            //             .HasMaxLength(50)
+            //             .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("RequestId");
+            //         b.HasKey("RequestId");
 
-                    b.ToTable("RideRequests");
-                });
+            //         b.ToTable("RideRequests");
+            //     });
 
             modelBuilder.Entity("RideShareConnect.Models.RoutePoint", b =>
                 {

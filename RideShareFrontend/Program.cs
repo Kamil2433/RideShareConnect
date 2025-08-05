@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
+using System.Net.Http.Headers; // Add this line
 var builder = WebApplication.CreateBuilder(args);
 
 // MVC + CORS
@@ -20,10 +20,53 @@ builder.Services.AddCors(options =>
 });
 
 // Cookie settings for JWT storage
-builder.Services.Configure<CookiePolicyOptions>(options =>
+// builder.Services.Configure<CookiePolicyOptions>(options =>
+// {
+//     options.MinimumSameSitePolicy = SameSiteMode.Lax;
+//     options.Secure = CookieSecurePolicy.None;
+// });
+
+
+
+// builder.Services.AddHttpClient("ApiClient", client =>
+// {
+//     client.BaseAddress = new Uri("http://localhost:5157/"); // Your API base URL
+//     client.Timeout = TimeSpan.FromSeconds(30);
+// })
+// .ConfigurePrimaryHttpMessageHandler(() =>
+// {
+//     var handler = new HttpClientHandler();
+
+//     // Only for development - skip SSL certificate validation
+//     if (builder.Environment.IsDevelopment())
+//     {
+//         handler.ServerCertificateCustomValidationCallback =
+//             (message, cert, chain, sslPolicyErrors) => true;
+//     }
+
+//     return handler;
+// });
+
+builder.Services.AddHttpClient("ApiClient", client =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.Lax;
-    options.Secure = CookieSecurePolicy.None;
+    client.BaseAddress = new Uri("http://localhost:5157/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler()
+    {
+        UseCookies = true, // Enable cookies
+        CookieContainer = new System.Net.CookieContainer()
+    };
+    
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback = 
+            (message, cert, chain, sslPolicyErrors) => true;
+    }
+    
+    return handler;
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -105,7 +148,7 @@ app.UseCors("AllowBackend");
 app.Use(async (context, next) =>
 {
     var token = context.Request.Cookies["jwt"];
-    //     Console.WriteLine("🔍 Middleware sees cookie: " + token);
+    Console.WriteLine("🔍 Middleware sees cookie: " + token);
 
     if (!string.IsNullOrEmpty(token))
     {

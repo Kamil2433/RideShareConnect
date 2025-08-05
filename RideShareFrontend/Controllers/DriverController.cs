@@ -5,21 +5,19 @@ using System.Net.Http.Headers;
 
 namespace RideShareConnect.Controllers
 {
-[Authorize(Roles = "Driver")]
+    [Authorize(Roles = "Driver")]
     public class DriverController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
 
-        public DriverController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public DriverController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
         }
 
         public IActionResult Index()
         {
-            return View(); // Loads Views/Driver/Index.cshtml
+            return View();
         }
 
         [HttpGet]
@@ -34,74 +32,54 @@ namespace RideShareConnect.Controllers
         [HttpPost]
         public async Task<IActionResult> PostRide(RideCreateDto ride)
         {
+            if (!ModelState.IsValid)
+            {
+                TempData["Msg"] = "Model invalid";
+                return View(ride);
+            }
+
+            var token = HttpContext.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Msg"] = "Unauthorized. Please log in.";
+                Console.WriteLine("JWT cookie not found. in frontend");
+                return RedirectToAction("PostRide");
+            }
+
             try
             {
-                if (!ModelState.IsValid)
+                var client = _httpClientFactory.CreateClient("ApiClient");
+         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                var response = await client.PostAsJsonAsync("api/Ride", ride);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    TempData["Msg"] = "Model invalid";
-                    Console.WriteLine("err");
-                    
-                    return View(ride);
+                    TempData["Success"] = "Ride posted successfully!";
+                    return RedirectToAction("PostRide");
                 }
 
-                 var token = context.Request.Cookies["jwt"];
-
-                Console.WriteLine(token);
-                if (string.IsNullOrEmpty(token))
-                {
-                    TempData["Msg"] = "Unauthorized. Please log in.";
-                    Console.WriteLine("unauth");
-                return RedirectToAction("PostRide"); // Important: must be a redirect for TempData to work as expected
-                }
-
-                try
-                {
-                    var client = _httpClientFactory.CreateClient();
-                    client.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    Console.WriteLine("Attempting to post ride to API");
-
-                    var response = await client.PostAsJsonAsync("api/ride", ride);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        TempData["Success"] = "Ride posted successfully!";
-                        return RedirectToAction("PostRide");
-                    }
-                    else
-                    {
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"API Error: {response.StatusCode} - {errorContent}");
-
-                        TempData["Error"] = "Failed to post ride. Please try again.";
-                        ModelState.AddModelError("", $"API Error: {response.StatusCode} - {errorContent}");
-                        return View(ride);
-                    }
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    Console.WriteLine($"HTTP Request Exception: {httpEx.Message}");
-                    TempData["Error"] = "Service unavailable. Please try again later.";
-                    ModelState.AddModelError("", "Service unavailable. Please try again later.");
-                    return View(ride);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Unexpected Error: {ex.Message}");
-                    TempData["Error"] = "An unexpected error occurred. Please try again.";
-                    ModelState.AddModelError("", "An unexpected error occurred.");
-                    return View(ride);
-                }
+                var errorContent = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = "Failed to post ride. Please try again.";
+                Console.WriteLine($"API Error: {response.StatusCode} - {errorContent}");
+                ModelState.AddModelError("", $"API Error: {response.StatusCode} - {errorContent}");
+                return View(ride);
             }
-            catch (Exception globalEx)
+            catch (HttpRequestException httpEx)
             {
-                Console.WriteLine($"Global Exception: {globalEx.Message}");
+                TempData["Error"] = $"Service unavailable: {httpEx.Message}";
+                Console.WriteLine($"HTTP Request Exception: {httpEx}");
+                ModelState.AddModelError("", "Service unavailable. Please try again later.");
+                return View(ride);
+            }
+            catch (Exception ex)
+            {
                 TempData["Error"] = "A system error occurred. Please contact support.";
+                Console.WriteLine($"Unexpected Error: {ex}");
                 return RedirectToAction("PostRide");
             }
         }
-
 
         [HttpGet("geocode")]
         [AllowAnonymous]
@@ -113,7 +91,7 @@ namespace RideShareConnect.Controllers
             try
             {
                 using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0 (kamilmulani2433@gmail.com)");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0");
 
                 var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(query)}&format=json";
                 var response = await client.GetAsync(url);
@@ -128,7 +106,6 @@ namespace RideShareConnect.Controllers
             }
         }
 
-
         [HttpGet("reverse-geocode")]
         [AllowAnonymous]
         public async Task<IActionResult> ReverseGeocode([FromQuery] double lat, [FromQuery] double lng)
@@ -136,7 +113,7 @@ namespace RideShareConnect.Controllers
             try
             {
                 using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0 (kamilmulani2433@gmail.com)");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0");
 
                 var url = $"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lng}";
                 var response = await client.GetAsync(url);
@@ -150,6 +127,5 @@ namespace RideShareConnect.Controllers
                 return StatusCode(503, $"Reverse geocoding service unavailable: {ex.Message}");
             }
         }
-
     }
 }
