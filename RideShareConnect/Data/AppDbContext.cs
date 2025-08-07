@@ -1,19 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using RideShareConnect.Models;
+
 using RideShareConnect.Models.PayModel;
+
+using RideShareConnect.Models.Admin;
+
 
 namespace RideShareConnect.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        // Existing tables
         public DbSet<User> Users { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<TwoFactorCode> TwoFactorCodes { get; set; }
+
 
         public DbSet<Wallet> Wallets{get;set;}
         public DbSet<WalletTransaction> WalletTransaction { get; set; }
@@ -21,11 +25,18 @@ namespace RideShareConnect.Data
 
 
 
+        // ✅ Admin module tables
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Analytics> Analytics { get; set; }
+        public DbSet<Commission> Commissions { get; set; }
+        public DbSet<Complaints> Complaints { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure User
+            // --- User ---
             modelBuilder.Entity<User>()
                 .HasKey(u => u.UserId);
             modelBuilder.Entity<User>()
@@ -40,7 +51,7 @@ namespace RideShareConnect.Data
                 .IsRequired()
                 .HasMaxLength(50);
 
-            // Configure UserProfile
+            // --- UserProfile ---
             modelBuilder.Entity<UserProfile>()
                 .HasKey(up => up.ProfileId);
             modelBuilder.Entity<UserProfile>()
@@ -49,7 +60,7 @@ namespace RideShareConnect.Data
                 .HasForeignKey<UserProfile>(up => up.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure UserSettings
+            // --- UserSettings ---
             modelBuilder.Entity<UserSettings>()
                 .HasKey(us => us.SettingsId);
             modelBuilder.Entity<UserSettings>()
@@ -58,7 +69,7 @@ namespace RideShareConnect.Data
                 .HasForeignKey<UserSettings>(us => us.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure TwoFactorCode
+            // --- TwoFactorCode ---
             modelBuilder.Entity<TwoFactorCode>()
                 .HasKey(t => t.CodeId);
             modelBuilder.Entity<TwoFactorCode>()
@@ -66,6 +77,7 @@ namespace RideShareConnect.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
                //wallet
                // Wallet - One to Many: Wallet -> WalletTransactions
@@ -84,6 +96,24 @@ namespace RideShareConnect.Data
                 .Property(t => t.Amount)
                 .HasColumnType("decimal(18,2)");
  
+
+            // --- Admin (optional config if needed) ---
+            modelBuilder.Entity<Admin>()
+                .Property(a => a.Username).IsRequired().HasMaxLength(100);
+            modelBuilder.Entity<Admin>()
+                .Property(a => a.Email).IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Admin>()
+                .Property(a => a.PasswordHash).IsRequired();
+
+            // --- Analytics ---
+            modelBuilder.Entity<Analytics>()
+                .Property(a => a.Date).IsRequired();
+            modelBuilder.Entity<Analytics>()
+                .Property(a => a.TotalRevenue).HasColumnType("decimal(18,2)");
+
+            // --- Commission & Complaints ---
+            // Add configuration if needed, otherwise EF will map by convention
+
         }
     }
 }

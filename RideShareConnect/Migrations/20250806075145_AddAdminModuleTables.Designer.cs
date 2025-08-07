@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RideShareConnect.Data;
 
@@ -11,9 +12,11 @@ using RideShareConnect.Data;
 namespace RideShareConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250806075145_AddAdminModuleTables")]
+    partial class AddAdminModuleTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,33 +25,6 @@ namespace RideShareConnect.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-
-            modelBuilder.Entity("RideShareConnect.Models.PayModel.Wallet", b =>
-                {
-                    b.Property<int>("WalletId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WalletId"));
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("PendingAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("WalletId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Wallets");
-                });
             modelBuilder.Entity("RideShareConnect.Models.Admin.Admin", b =>
                 {
                     b.Property<int>("Id")
@@ -57,22 +33,8 @@ namespace RideShareConnect.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-
-                    b.Property<decimal>("PendingAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("WalletId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Wallets");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -186,7 +148,6 @@ namespace RideShareConnect.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Complaints");
-
                 });
 
             modelBuilder.Entity("RideShareConnect.Models.TwoFactorCode", b =>
@@ -351,45 +312,6 @@ namespace RideShareConnect.Migrations
                     b.ToTable("UserSettings");
                 });
 
-            modelBuilder.Entity("RideShareConnect.Models.WalletTransaction", b =>
-                {
-                    b.Property<int>("TransactionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("WalletId")
-                        .HasColumnType("int");
-
-                    b.HasKey("TransactionId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("WalletTransaction");
-                });
-
-            modelBuilder.Entity("RideShareConnect.Models.PayModel.Wallet", b =>
-                {
-                    b.HasOne("RideShareConnect.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("RideShareConnect.Models.TwoFactorCode", b =>
                 {
                     b.HasOne("RideShareConnect.Models.User", "User")
@@ -421,22 +343,6 @@ namespace RideShareConnect.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("RideShareConnect.Models.WalletTransaction", b =>
-                {
-                    b.HasOne("RideShareConnect.Models.PayModel.Wallet", "Wallet")
-                        .WithMany("Transactions")
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("RideShareConnect.Models.PayModel.Wallet", b =>
-                {
-                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

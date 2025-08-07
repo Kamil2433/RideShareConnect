@@ -46,6 +46,11 @@ namespace RideShareConnect.Controllers
         {
             return View();
         }
+        public IActionResult Commission()
+        {
+            return View();
+        }
+        
         public IActionResult LoginHistory()
         {
             return View();
