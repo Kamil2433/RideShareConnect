@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RideShareConnect.Models;
+using RideShareConnect.Models.PayModel;
 
 namespace RideShareConnect.Data
 {
@@ -13,6 +14,12 @@ namespace RideShareConnect.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<TwoFactorCode> TwoFactorCodes { get; set; }
+
+        public DbSet<Wallet> Wallets{get;set;}
+        public DbSet<WalletTransaction> WalletTransaction { get; set; }
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,6 +66,24 @@ namespace RideShareConnect.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+               //wallet
+               // Wallet - One to Many: Wallet -> WalletTransactions
+            modelBuilder.Entity<Wallet>()
+                .HasMany(w => w.Transactions)
+                .WithOne(t => t.Wallet)
+                .HasForeignKey(t => t.WalletId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Optional: Fluent API configuration
+            modelBuilder.Entity<Wallet>()
+                .Property(w => w.Balance)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<WalletTransaction>()
+                .Property(t => t.Amount)
+                .HasColumnType("decimal(18,2)");
+ 
         }
     }
 }
