@@ -3,6 +3,9 @@
      Layout = "_PassengerLayout.cshtml";
     ViewData["Title"] = "Passenger Profile";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/passenger-profile.css" />
+}
 
 <div class="container">
     <h2>Passenger Profile</h2>
@@ -23,6 +26,12 @@
     <form  asp-action="PassengerProfile" id="profileForm" method="post" novalidate>
         @Html.AntiForgeryToken()
         <div class="form-group">
+             <label>Upload Profile Picture</label>
+    <input type="file" id="ProfilePictureFile" class="form-control" accept="image/*" />
+    <input type="hidden" asp-for="ProfilePicture" />
+    <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="FirstName">First Name</label>
             <input asp-for="FirstName" class="form-control" />
             <span asp-validation-for="FirstName" class="text-danger"></span>
@@ -41,11 +50,6 @@
             <label asp-for="Address">Address</label>
             <input asp-for="Address" class="form-control" />
             <span asp-validation-for="Address" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="ProfilePicture">Profile Picture URL</label>
-            <input asp-for="ProfilePicture" class="form-control" />
-            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
         @if (!Model.IsNewProfile)
