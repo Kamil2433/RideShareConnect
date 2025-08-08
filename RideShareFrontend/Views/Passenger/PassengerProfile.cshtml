@@ -119,4 +119,15 @@
             });
         });
     </script> -->
+
+
+    <script>
+    document.getElementById("ProfilePictureFile").addEventListener("change", function () {
+        const fileInput = this;
+        if (fileInput.files.length > 0) {
+            // Simulate assigning static path instead of uploading the file
+            document.getElementById("ProfilePicture").value = "/img/pic.jpg";
+        }
+    });
+</script>
 }
