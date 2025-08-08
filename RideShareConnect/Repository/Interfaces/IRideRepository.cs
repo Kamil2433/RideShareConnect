@@ -7,6 +7,9 @@ namespace RideShareConnect.Repository.Interfaces
 {
     public interface IRideRepository
     {
+
+        Task<IEnumerable<RideBooking>> GetBookingsByDriverIdWithStatusAsync(int driverId, List<string> statuses);
+
         Task<IEnumerable<Ride>> SearchRidesAsync(RideSearchDto searchDto);
         Task<bool> CreateRideAsync(Ride ride);
         Task AddRoutePointsAsync(IEnumerable<RoutePoint> routePoints);

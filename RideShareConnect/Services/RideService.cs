@@ -17,6 +17,26 @@ namespace RideShareConnect.Services
             _rideRepository = rideRepository;
         }
 
+        public async Task<IEnumerable<RideBookingDto>> GetDriverRideBookingsByStatusAsync(int driverId)
+        {
+            var statuses = new List<string> { "pending", "confirmed" };
+
+            var bookings = await _rideRepository.GetBookingsByDriverIdWithStatusAsync(driverId, statuses);
+
+            return bookings.Select(b => new RideBookingDto
+            {
+                BookingId = b.BookingId,
+                RideId = b.RideId,
+                PassengerId = b.PassengerId,
+                SeatsBooked = b.SeatsBooked,
+                TotalAmount = b.TotalAmount,
+                BookingStatus = b.BookingStatus,
+                BookingTime = b.BookingTime,
+                PickupPoint = b.PickupPoint,
+                DropPoint = b.DropPoint
+            });
+        }
+
 
         public async Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto)
         {
@@ -143,7 +163,8 @@ namespace RideShareConnect.Services
                 PickupPoint = dto.PickupPoint,
                 DropPoint = dto.DropPoint,
                 PassengerNotes = dto.PassengerNotes,
-                BookingStatus = "Confirmed",
+                BookingStatus = "pending",
+                CancellationReason="null",
                 BookingTime = DateTime.UtcNow
             };
 

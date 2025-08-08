@@ -18,6 +18,22 @@ namespace RideShareConnect.Controllers
             _rideService = rideService;
         }
 
+
+        [HttpGet("bookings")]
+        public async Task<IActionResult> GetDriverBookings()
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null)
+                return Unauthorized(new { message = "UserId claim not found in token." });
+
+            if (!int.TryParse(userIdClaim.Value, out int driverId))
+                return BadRequest(new { message = "Invalid UserId format." });
+
+            var bookings = await _rideService.GetDriverRideBookingsByStatusAsync(driverId);
+            return Ok(bookings);
+        }
+
+
         [HttpPost("search")]
         [AllowAnonymous]
         public async Task<IActionResult> SearchRides([FromBody] RideSearchDto dto)

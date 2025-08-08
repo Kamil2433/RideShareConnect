@@ -47,6 +47,7 @@ namespace RideShareConnect.Repository.Implements
                 )
                 .Include(r => r.RoutePoints)
                 .ToListAsync();
+            // Console.WriteLine(matchingRides);
 
             return matchingRides;
         }
@@ -84,6 +85,14 @@ namespace RideShareConnect.Repository.Implements
         {
             return await _context.Rides
                 .Where(r => r.DriverId == userId)
+                .ToListAsync();
+        }
+
+         public async Task<IEnumerable<RideBooking>> GetBookingsByDriverIdWithStatusAsync(int driverId, List<string> statuses)
+        {
+            return await _context.RideBookings
+                .Include(rb => rb.Ride)
+                .Where(rb => rb.Ride.DriverId == driverId && statuses.Contains(rb.BookingStatus))
                 .ToListAsync();
         }
 

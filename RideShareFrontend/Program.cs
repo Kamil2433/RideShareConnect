@@ -148,7 +148,7 @@ app.UseCors("AllowBackend");
 app.Use(async (context, next) =>
 {
     var token = context.Request.Cookies["jwt"];
-    Console.WriteLine("🔍 Middleware sees cookie: " + token);
+//     Console.WriteLine("🔍 Middleware sees cookie: " + token);
 
     if (!string.IsNullOrEmpty(token))
     {

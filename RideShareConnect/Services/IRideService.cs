@@ -4,12 +4,15 @@ using System.Threading.Tasks;
 
 namespace RideShareConnect.Services
 {
-	public interface IRideService
-	{
-        Task<bool> CreateRideAsync(RideCreateDto dto, int driverId);
-        Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto);
+        public interface IRideService
+        {
 
-        Task<bool> BookRideAsync(RideBookingCreateDto dto, int passengerId);
-        Task<IEnumerable<RideDto>> GetRidesByUserIdAsync(int userId);
-	}
+                Task<IEnumerable<RideBookingDto>> GetDriverRideBookingsByStatusAsync(int driverId);
+
+                Task<bool> CreateRideAsync(RideCreateDto dto, int driverId);
+                Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto);
+
+                Task<bool> BookRideAsync(RideBookingCreateDto dto, int passengerId);
+                Task<IEnumerable<RideDto>> GetRidesByUserIdAsync(int userId);
+        }
 }

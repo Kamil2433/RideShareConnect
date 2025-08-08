@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using RideShareFrontend.DTOs;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace RideShareConnect.Controllers
 {
@@ -27,6 +28,53 @@ namespace RideShareConnect.Controllers
             ViewBag.Msg = TempData["Msg"];
             ViewBag.Success = TempData["Success"];
             return View();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> BookingView()
+        {
+            var token = HttpContext.Request.Cookies["jwt"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Unauthorized. Please log in.";
+                Console.WriteLine("JWT cookie not found.");
+                return RedirectToAction("Login", "Account"); // adjust route if needed
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("ApiClient");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                var response = await client.GetAsync("api/ride/bookings");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var bookings = JsonSerializer.Deserialize<List<RideBookingDto>>(json);
+                    return View(bookings);
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Error: {response.StatusCode} - {errorContent}");
+                TempData["Error"] = "Failed to fetch bookings.";
+                return View(new List<RideBookingDto>());
+            }
+            catch (HttpRequestException httpEx)
+            {
+                TempData["Error"] = $"Service unavailable: {httpEx.Message}";
+                Console.WriteLine($"HTTP Exception: {httpEx}");
+                return View(new List<RideBookingDto>());
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An unexpected error occurred.";
+                Console.WriteLine($"Unexpected error: {ex}");
+                return View(new List<RideBookingDto>());
+            }
         }
 
         [HttpPost]

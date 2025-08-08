@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Net;
 using RideShareFrontend.DTOs;
 using System.Net.Http.Headers;
+using RideShareConnect.Models;
 
 namespace RideShareConnect.Controllers
 {
@@ -80,9 +82,72 @@ namespace RideShareConnect.Controllers
         [HttpGet]
         public IActionResult SearchRide()
         {
+            ViewBag.Message = TempData["Message"];
+            ViewBag.Msg = TempData["Msg"];
+            ViewBag.Success = TempData["Success"];
             return View();
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookRide(RideBookingCreateViewModel bookDto)
+        {
+
+
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("ModelState is invalid.");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    if (state.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"Field: {key}");
+                        foreach (var error in state.Errors)
+                        {
+                            Console.WriteLine($" - Error: {error.ErrorMessage}");
+                        }
+                    }
+                }
+                TempData["Error"] = "Invalid input. Please review the form.";
+                return RedirectToAction("SearchRide");
+            }
+
+            var token = HttpContext.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Unauthorized. Please log in first.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var client = _httpClient;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                var response = await client.PostAsJsonAsync("api/ride/book", bookDto);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Ride booking Request posted successfully, Please wait for driver to approved";
+                    return RedirectToAction("SearchRide");
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError($"Booking failed: {response.StatusCode} - {errorContent}");
+                TempData["Error"] = "Booking failed. Please try again.";
+                return RedirectToAction("SearchRide");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during ride booking.");
+                TempData["Error"] = "Unexpected error. Please try again.";
+                Console.WriteLine(ex);
+                return RedirectToAction("SearchRide");
+            }
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -120,6 +185,7 @@ namespace RideShareConnect.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(json);
 
                     var rideResults = JsonSerializer.Deserialize<List<RideViewModel>>(json, new JsonSerializerOptions
                     {
