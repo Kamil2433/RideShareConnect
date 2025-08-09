@@ -361,8 +361,7 @@ namespace RideShareConnect.Migrations
 
                     b.Property<string>("ProfilePicture")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

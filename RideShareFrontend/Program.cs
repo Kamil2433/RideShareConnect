@@ -105,7 +105,7 @@ app.UseCors("AllowBackend");
 app.Use(async (context, next) =>
 {
     var token = context.Request.Cookies["jwt"];
-    Console.WriteLine("🔍 Middleware sees cookie: " + token);
+//     Console.WriteLine("🔍 Middleware sees cookie: " + token);
 
     if (!string.IsNullOrEmpty(token))
     {
@@ -123,12 +123,12 @@ app.Use(async (context, next) =>
             Console.WriteLine(" Set HttpContext.User:");
             foreach (var claim in jwt.Claims)
             {
-                Console.WriteLine($" {claim.Type}: {claim.Value}");
+//                 Console.WriteLine($" {claim.Type}: {claim.Value}");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(" Failed to parse JWT: " + ex.Message);
+//             Console.WriteLine(" Failed to parse JWT: " + ex.Message);
         }
     }
 

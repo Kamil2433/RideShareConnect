@@ -68,7 +68,7 @@ namespace RideShareFrontend.Controllers
                     return RedirectToAction("Index");
                 }
 
-                var request = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
+                var request = new HttpRequestMessage(HttpMethod.Get, "/api/driver-profile/getdrverprofile");
                 request.Headers.Add("Accept", "application/json");
                 request.Headers.Add("Cookie", $"jwt={jwtCookie}");
 
@@ -118,7 +118,7 @@ namespace RideShareFrontend.Controllers
             {
                 _logger.LogWarning("ModelState invalid: {Errors}",
                     string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
-
+                Console.WriteLine("ModelState is invalid");
                 return View(model);
             }
 
@@ -132,7 +132,7 @@ namespace RideShareFrontend.Controllers
                 }
 
                 // 🔍 Step 1: Check if profile exists
-                var checkRequest = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
+                var checkRequest = new HttpRequestMessage(HttpMethod.Get, "/api/driver-profile/create-or-update");
                 checkRequest.Headers.Add("Accept", "application/json");
                 checkRequest.Headers.Add("Cookie", $"jwt={jwtCookie}");
 
@@ -144,7 +144,7 @@ namespace RideShareFrontend.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 // 🔁 Step 3: Call appropriate API
-                var endpoint = isNewProfile ? "api/UserProfile" : "api/UserProfile/me";
+                var endpoint = isNewProfile ? "api/UserProfile" : "/api/driver-profile/create-or-update";
                 var saveRequest = new HttpRequestMessage(HttpMethod.Post, endpoint)
                 {
                     Content = content

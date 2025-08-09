@@ -116,6 +116,8 @@
                     // Set the Base64 string to the hidden input
                     document.getElementById("ProfilePicture").value = reader.result;
                     // Show preview
+                    console.log(reader.result);
+
                     const preview = document.getElementById("profilePreview");
                     preview.src = reader.result;
                     preview.style.display = "block";
@@ -133,7 +135,7 @@
                     // Set the Base64 string to the hidden input
                     document.getElementById("LicenseImageUrl").value = reader.result;
                     // Show preview
-                    console.log(reader.resullt);
+                    console.log(reader.result);
                     const preview = document.getElementById("licensePreview");
                     preview.src = reader.result;
                     preview.style.display = "block";

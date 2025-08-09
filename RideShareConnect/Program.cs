@@ -5,6 +5,9 @@ using RideShareConnect.Repository.Interfaces;
 using RideShareConnect.Repository.Implements;
 using RideShareConnect.Services;
 using RideShareConnect.MappingProfiles;
+using RideShareConnect.Services.Interfaces;
+using RideShareConnect.Services.Implements;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +58,8 @@ builder.Services.AddSwaggerGen();
 
 // builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
 // builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
-// builder.Services.AddScoped<IDriverProfileServiceRepository, DriverProfileService>(); 
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+builder.Services.AddScoped<IDriverProfileRepository, DriverProfileRepository>();
 // builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
 // builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
 builder.Services.AddAuthentication("Cookies")
