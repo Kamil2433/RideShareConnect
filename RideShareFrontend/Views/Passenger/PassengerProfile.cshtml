@@ -1,14 +1,14 @@
 @model RideShareConnect.Models.UserProfileViewModel
 @{
-     Layout = "_DriverLayout.cshtml";
-    ViewData["Title"] = "Driver Profile";
+     Layout = "_PassengerLayout.cshtml";
+    ViewData["Title"] = "Passenger Profile";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/Driver/driver-profile.css" />
+    <link rel="stylesheet" href="~/css/passenger-profile.css" />
 }
 
 <div class="container">
-    <h2>Driver Profile</h2>
+    <h2>Passenger Profile</h2>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -23,7 +23,7 @@
         </div>
     }
 
-    <form  asp-action="DriverProfile" id="profileForm" method="post" novalidate>
+    <form  asp-action="PassengerProfile" id="profileForm" method="post" novalidate>
         @Html.AntiForgeryToken()
         <div class="form-group">
              <label>Upload Profile Picture</label>
@@ -51,7 +51,6 @@
             <input asp-for="Address" class="form-control" />
             <span asp-validation-for="Address" class="text-danger"></span>
         </div>
-        
         <button type="submit" class="btn btn-primary">Save</button>
         @if (!Model.IsNewProfile)
         {
@@ -121,6 +120,7 @@
         });
     </script> -->
 
+
     <script>
     document.getElementById("ProfilePictureFile").addEventListener("change", function () {
         const fileInput = this;
@@ -130,5 +130,4 @@
         }
     });
 </script>
-
 }

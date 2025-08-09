@@ -83,6 +83,17 @@ body {
     color: #748DAE;
 }
 
+.btn-dashboard {
+    background: transparent;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+}
+
+.btn-dashboard:hover {
+    background: #FFFFFF;
+    color: #748DAE;
+}
+
 .btn-signup {
     background: #FFFFFF;
     color: #748DAE;

@@ -90,23 +90,53 @@ namespace RideShareConnect.Controllers.UserAuth
             return Ok(new UserAuthRegisterResponseDto { Message = "Email verified successfully." });
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserAuthLoginDto loginDto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+      [HttpPost("login")]
+public async Task<IActionResult> Login([FromBody] UserAuthLoginDto loginDto)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
 
-            var user = await _userAuthRepository.GetUserByEmailAsync(loginDto.Email);
-            if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
-                return Unauthorized("Invalid email or password.");
+    var user = await _userAuthRepository.GetUserByEmailAsync(loginDto.Email);
+    if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
+        return Unauthorized("Invalid email or password.");
 
-            if (!user.IsEmailVerified)
-                return BadRequest("Email not verified.");
+    if (!user.IsEmailVerified)
+        return BadRequest("Email not verified.");
 
-            // Generate JWT
-            var token = GenerateJwtToken(user);
-            return Ok(new UserAuthLoginResponseDto { Message = "Login successful.", Token = token });
-        }
+    var token = GenerateJwtToken(user);
+    var cookieOptions = new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = false, // For local HTTP
+         SameSite = SameSiteMode.Lax,
+       Expires = DateTime.UtcNow.AddMinutes(60),
+        Path = "/",
+    };
+
+    Response.Cookies.Append("jwt", token, cookieOptions);
+
+    Response.Headers.Append("Access-Control-Allow-Credentials", "true");
+    Response.Headers.Append("Access-Control-Allow-Origin", 
+        Request.Headers["Origin"].FirstOrDefault() ?? "http://localhost:5125");
+
+    // Determine redirect URL based on role
+   
+
+    return Ok(new { 
+        message = "Login successful.", 
+        role = user.Role, 
+       
+    });
+}
+
+
+        [HttpPost("logout")]
+public IActionResult Logout()
+{
+     Response.Cookies.Delete("jwt");
+    return Ok(new { message = "Logged out successfully." });
+}
+
 
         private string HashPassword(string password)
         {

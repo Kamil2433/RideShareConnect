@@ -1,14 +1,10 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RideShareConnect.Data;
 using RideShareConnect.Repository.Interfaces;
 using RideShareConnect.Repository.Implements;
 using RideShareConnect.Services;
-using AutoMapper;
-// using AutoMapper.Extensions.Microsoft.DependencyInjection;
 using RideShareConnect.MappingProfiles;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,52 +21,55 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
+builder.Services.AddAutoMapper(typeof(UserProfileAutoMapperProfile).Assembly);
+
 
 // Register repositories and services
 builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
-// builder.Services.AddScoped<IEmailService, MockEmailService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
-// Configure JWT Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
-
-// Configure CORS for testing
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("http://localhost:5125")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
-
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
 builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
 builder.Services.AddScoped<IDriverProfileServiceRepository, DriverProfileService>(); 
 builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
 builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.Cookie.Name = "jwt";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = 403;
+            return Task.CompletedTask;
+        };
+    });
+  builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
@@ -81,10 +80,55 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("AllowFrontend");
-app.UseAuthentication();
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Lax, // Allow cross-origin redirects
+    Secure = CookieSecurePolicy.None // For local HTTP
+});
+app.Use(async (context, next) =>
+{
+     var jwt = context.Request.Cookies["jwt"];
+    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
+    await next();
+});
+app.Use(async (context, next) =>
+{
+    var jwt = context.Request.Cookies["jwt"];
+    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
+
+    if (!string.IsNullOrEmpty(jwt))
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        try
+        {
+            var token = handler.ReadJwtToken(jwt);
+            var identity = new System.Security.Claims.ClaimsIdentity(token.Claims, "Cookies");
+            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+            context.User = principal;
+
+            Console.WriteLine("✅ Backend set HttpContext.User from cookie.");
+            Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+            Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+        }
+        catch (Exception ex)
+        {
+           Console.WriteLine("❌ Failed to parse JWT: " + ex.Message);
+        }
+    }
+
+    await next();
+});
+
+app.UseAuthentication(); 
+app.Use(async (context, next) =>
+{
+    Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+    Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+    await next();
+});
+
 app.UseAuthorization();
 app.MapControllers();
 
