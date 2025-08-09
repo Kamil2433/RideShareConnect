@@ -47,11 +47,6 @@ namespace RideShareConnect.Controllers
             return View(); // Loads Views/Driver/VehicleManagement.cshtml
         }
 
-        public IActionResult DriverProfile()
-        {
-            return View(); // Loads Views/Driver/DriverProfile.cshtml
-        }
-
         [HttpGet]
         public IActionResult PostRide()
         {
