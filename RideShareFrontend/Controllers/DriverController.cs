@@ -3,6 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using RideShareFrontend.DTOs;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Security.Claims;
+using System.Text;
+using System.Net;
+
+using RideShareConnect.Models;
+
 
 namespace RideShareConnect.Controllers
 {

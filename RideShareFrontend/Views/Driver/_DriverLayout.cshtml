@@ -60,8 +60,11 @@
 
                     <li><a href="/driver/Complaints"><i class="fas fa-history"></i><span>COMPLAINTS</span></a></li>
 
-                    <li><a href="#" onclick="logout(); return false;"><i
-                                class="fas fa-sign-out-alt"></i><span>LOGOUT</span></a></li>
+                  <li>
+    <button type="button" onclick="logoutUser()" style="background:none;border:none;color:inherit;">
+        <i class="fas fa-sign-out-alt"></i><span>LOGOUT</span>
+    </button>
+</li>
 
                 </ul>
 
@@ -92,7 +95,28 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
-    @RenderSection("Scripts", required: false)
+     <script>
+    async function logoutUser() {
+        try {
+            const response = await fetch("http://localhost:5157/api/auth/logout", {
+                method: "POST",
+                credentials: "include" // This sends the cookie
+            });
+
+            if (response.ok) {
+                alert("Logged out successfully.");
+                window.location.href = "/";
+            } else {
+                alert("Failed to log out.");
+            }
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("An error occurred while logging out.");
+        }
+    }
+</script>
+
+@RenderSection("Scripts", required: false)
 
 
 

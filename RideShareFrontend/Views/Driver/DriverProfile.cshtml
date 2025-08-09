@@ -1,292 +1,134 @@
 @model RideShareConnect.Models.UserProfileViewModel
-
 @{
-    ViewData["Title"] = Model.IsNewProfile ? "Create Profile" : "Update Profile";
-    Layout = "_DriverLayout.cshtml"; // Assuming this is your passenger layout
+     Layout = "_DriverLayout.cshtml";
+    ViewData["Title"] = "Driver Profile";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/Driver/driver-profile.css" />
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user-circle me-2"></i>
-                        @(Model.IsNewProfile ? "Create Your Profile" : "Update Your Profile")
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <!-- Success/Error Messages -->
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
+<div class="container">
+    <h2>Driver Profile</h2>
 
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            @TempData["ErrorMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    <!-- Profile Form -->
-                    <form asp-action="PassengerProfile" method="post" id="profileForm" enctype="multipart/form-data">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="IsNewProfile" />
-                        
-                        <div class="row">
-                            <!-- Profile Picture Section -->
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="profile-picture-container">
-                                    <div class="profile-picture-wrapper">
-                                        <img id="profilePicturePreview" 
-                                             src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? "/images/default-avatar.png" : Model.ProfilePicture)" 
-                                             alt="Profile Picture" 
-                                             class="profile-picture img-thumbnail" />
-                                        <div class="profile-picture-overlay">
-                                            <i class="fas fa-camera"></i>
-                                        </div>
-                                    </div>
-                                    <input type="file" id="profilePictureInput" accept="image/*" class="d-none" />
-                                    <input type="hidden" asp-for="ProfilePicture" id="profilePictureData" />
-                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="document.getElementById('profilePictureInput').click()">
-                                        <i class="fas fa-upload me-1"></i>Change Picture
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Form Fields -->
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="FirstName" class="form-label">
-                                            <i class="fas fa-user me-1"></i>First Name
-                                        </label>
-                                        <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
-                                        <span asp-validation-for="FirstName" class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="LastName" class="form-label">
-                                            <i class="fas fa-user me-1"></i>Last Name
-                                        </label>
-                                        <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
-                                        <span asp-validation-for="LastName" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="PhoneNumber" class="form-label">
-                                            <i class="fas fa-phone me-1"></i>Phone Number
-                                        </label>
-                                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" />
-                                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="Address" class="form-label">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Address
-                                        </label>
-                                        <input asp-for="Address" class="form-control" placeholder="Enter your address" />
-                                        <span asp-validation-for="Address" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        @if (!Model.IsNewProfile)
-                                        {
-                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                                <i class="fas fa-trash me-1"></i>Delete Profile
-                                            </button>
-                                        }
-                                    </div>
-                                    <div>
-                                        <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
-                                            <i class="fas fa-undo me-1"></i>Reset
-                                        </button>
-                                        <button type="submit" class="btn btn-primary" id="saveButton">
-                                            <i class="fas fa-save me-1"></i>
-                                            @(Model.IsNewProfile ? "Create Profile" : "Update Profile")
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
         </div>
-    </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <form  asp-action="DriverProfile" id="profileForm" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+             <label>Upload Profile Picture</label>
+    <input type="file" id="ProfilePictureFile" class="form-control" accept="image/*" />
+    <input type="hidden" asp-for="ProfilePicture" />
+    <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="FirstName">First Name</label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="LastName">Last Name</label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PhoneNumber">Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Address">Address</label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save</button>
+        @if (!Model.IsNewProfile)
+        {
+            <button type="button" class="btn btn-danger" id="deleteProfile">Delete Profile</button>
+        }
+    </form>
 </div>
 
-<!-- Delete Confirmation Modal -->
-@if (!Model.IsNewProfile)
-{
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Delete Profile
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form asp-action="DeleteProfile" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-1"></i>Delete Profile
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-@section Styles {
-    <style>
-        .profile-picture-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .profile-picture-wrapper {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto;
-            cursor: pointer;
-        }
-
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .profile-picture-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: all 0.3s ease;
-            color: white;
-            font-size: 24px;
-        }
-
-        .profile-picture-wrapper:hover .profile-picture-overlay {
-            opacity: 1;
-        }
-
-        .profile-picture-wrapper:hover .profile-picture {
-            transform: scale(1.05);
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-        }
-
-        .card-header {
-            border-radius: 10px 10px 0 0 !important;
-        }
-
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        .btn {
-            border-radius: 6px;
-        }
-    </style>
-}
-
 @section Scripts {
-    <script>
-        // Profile picture preview
-        document.getElementById('profilePictureInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profilePicturePreview').src = e.target.result;
-                    document.getElementById('profilePictureData').value = e.target.result;
+    <!-- <script>
+        $(document).ready(function () {
+            $("#profileForm").submit(async function (event) {
+                event.preventDefault();
+
+                var formData = {
+                    FirstName: $("#FirstName").val(),
+                    LastName: $("#LastName").val(),
+                    PhoneNumber: $("#PhoneNumber").val(),
+                    Address: $("#Address").val(),
+                    ProfilePicture: $("#ProfilePicture").val(),
+                    IsNewProfile: @Model.IsNewProfile.ToString().ToLower()
                 };
-                reader.readAsDataURL(file);
-            }
-        });
 
-        // Click on profile picture to trigger file input
-        document.querySelector('.profile-picture-wrapper').addEventListener('click', function() {
-            document.getElementById('profilePictureInput').click();
-        });
+                var token = $('input[name="__RequestVerificationToken"]').val();
 
-        // Reset form function
-        function resetForm() {
-            if (confirm('Are you sure you want to reset all changes?')) {
-                document.getElementById('profileForm').reset();
-                // Reset profile picture to original
-                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
-                {
-                    <text>
-                    document.getElementById('profilePicturePreview').src = '@Model.ProfilePicture';
-                    </text>
-                }
-                else
-                {
-                    <text>
-                    document.getElementById('profilePicturePreview').src = '/images/default-avatar.png';
-                    </text>
-                }
-            }
-        }
+                var response = await fetch('/Passenger/PassengerProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    credentials: 'include', // Ensure jwt cookie is sent
+                    body: JSON.stringify(formData)
+                });
 
-        // Form submission with loading state
-        document.getElementById('profileForm').addEventListener('submit', function() {
-            const saveButton = document.getElementById('saveButton');
-            saveButton.disabled = true;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
-        });
-
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                if (alert.classList.contains('show')) {
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.remove(), 150);
+                var result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert(result.message || 'Error saving profile.');
+                    if (result.errors) {
+                        result.errors.forEach(function (error) {
+                            console.log(error);
+                        });
+                    }
                 }
             });
-        }, 5000);
-    </script>
 
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+            $("#deleteProfile").click(function () {
+                if (confirm('Are you sure you want to delete your profile?')) {
+                    fetch('/Passenger/DeleteProfile', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        credentials: 'include' // Ensure jwt cookie is sent
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to delete profile.');
+                        }
+                    });
+                }
+            });
+        });
+    </script> -->
+
+    <script>
+    document.getElementById("ProfilePictureFile").addEventListener("change", function () {
+        const fileInput = this;
+        if (fileInput.files.length > 0) {
+            // Simulate assigning static path instead of uploading the file
+            document.getElementById("ProfilePicture").value = "/img/pic.jpg";
+        }
+    });
+</script>
+
 }
