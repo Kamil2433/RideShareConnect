@@ -6,16 +6,15 @@ using System.Text;
 using System.Text.Json;
 using System.Net;
 
-using RideShareConnect.Models;
+using RideShareFrontend.Models.DTOs;
 
-
-namespace RideShareConnect.Controllers
+namespace RideShareFrontend.Controllers
 {
-[Authorize(Roles = "Driver")]
+    [Authorize(Roles = "Driver")]
     public class DriverController : Controller
     {
 
-          private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DriverController> _logger;
 
@@ -53,173 +52,173 @@ namespace RideShareConnect.Controllers
             return View(); // This will look for Views/Driver/PostRide.cshtml
         }
 
-     
 
 
- [HttpGet]
-public async Task<IActionResult> DriverProfile()
-{
-    try
-    {
-        var jwtCookie = HttpContext.Request.Cookies["jwt"];
-        if (string.IsNullOrEmpty(jwtCookie))
+
+        [HttpGet]
+        public async Task<IActionResult> DriverProfile()
         {
-            _logger.LogWarning("JWT cookie not found in request");
-            TempData["ErrorMessage"] = "You are not logged in.";
-            return RedirectToAction("Index");
-        }
-
-        var request = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
-        request.Headers.Add("Accept", "application/json");
-        request.Headers.Add("Cookie", $"jwt={jwtCookie}");
-
-        var response = await _httpClient.SendAsync(request);
-        _logger.LogInformation("Response Status: {StatusCode}", response.StatusCode);
-
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            var profile = JsonSerializer.Deserialize<UserProfileViewModel>(json, new JsonSerializerOptions
+            try
             {
-                PropertyNameCaseInsensitive = true
-            });
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    _logger.LogWarning("JWT cookie not found in request");
+                    TempData["ErrorMessage"] = "You are not logged in.";
+                    return RedirectToAction("Index");
+                }
 
-            if (profile != null)
+                var request = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
+                _logger.LogInformation("Response Status: {StatusCode}", response.StatusCode);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var profile = JsonSerializer.Deserialize<DriverProfileDto>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (profile != null)
+                    {
+                        profile.IsNewProfile = false;
+                        return View(profile);
+                    }
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return View(new DriverProfileDto { IsNewProfile = true });
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("API Error - Status: {StatusCode}, Content: {Content}", response.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to load profile.";
+                }
+
+                return View(new DriverProfileDto { IsNewProfile = true });
+            }
+            catch (Exception ex)
             {
-                profile.IsNewProfile = false;
-                return View(profile);
+                _logger.LogError(ex, "Exception while loading profile.");
+                TempData["ErrorMessage"] = "An error occurred.";
+                return View(new DriverProfileDto { IsNewProfile = true });
             }
         }
-        else if (response.StatusCode == HttpStatusCode.NotFound)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DriverProfile(DriverProfileDto model)
         {
-            return View(new UserProfileViewModel { IsNewProfile = true });
-        }
-        else
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("API Error - Status: {StatusCode}, Content: {Content}", response.StatusCode, errorContent);
-            TempData["ErrorMessage"] = "Failed to load profile.";
-        }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("ModelState invalid: {Errors}",
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-        return View(new UserProfileViewModel { IsNewProfile = true });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Exception while loading profile.");
-        TempData["ErrorMessage"] = "An error occurred.";
-        return View(new UserProfileViewModel { IsNewProfile = true });
-    }
-}
+                return View(model);
+            }
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DriverProfile(UserProfileViewModel model)
-{
-    if (!ModelState.IsValid)
-    {
-        _logger.LogWarning("ModelState invalid: {Errors}",
-            string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            try
+            {
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("PassengerProfile");
+                }
 
-        return View(model);
-    }
+                // 🔍 Step 1: Check if profile exists
+                var checkRequest = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
+                checkRequest.Headers.Add("Accept", "application/json");
+                checkRequest.Headers.Add("Cookie", $"jwt={jwtCookie}");
 
-    try
-    {
-        var jwtCookie = HttpContext.Request.Cookies["jwt"];
-        if (string.IsNullOrEmpty(jwtCookie))
-        {
-            TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
-            return RedirectToAction("PassengerProfile");
-        }
+                var checkResponse = await _httpClient.SendAsync(checkRequest);
+                var isNewProfile = checkResponse.StatusCode == HttpStatusCode.NotFound;
 
-        // 🔍 Step 1: Check if profile exists
-        var checkRequest = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
-        checkRequest.Headers.Add("Accept", "application/json");
-        checkRequest.Headers.Add("Cookie", $"jwt={jwtCookie}");
+                // 🔁 Step 2: Prepare content
+                var json = JsonSerializer.Serialize(model);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var checkResponse = await _httpClient.SendAsync(checkRequest);
-        var isNewProfile = checkResponse.StatusCode == HttpStatusCode.NotFound;
+                // 🔁 Step 3: Call appropriate API
+                var endpoint = isNewProfile ? "api/UserProfile" : "api/UserProfile/me";
+                var saveRequest = new HttpRequestMessage(HttpMethod.Post, endpoint)
+                {
+                    Content = content
+                };
+                saveRequest.Headers.Add("Accept", "application/json");
+                saveRequest.Headers.Add("Cookie", $"jwt={jwtCookie}");
 
-        // 🔁 Step 2: Prepare content
-        var json = JsonSerializer.Serialize(model);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var saveResponse = await _httpClient.SendAsync(saveRequest);
 
-        // 🔁 Step 3: Call appropriate API
-        var endpoint = isNewProfile ? "api/UserProfile" : "api/UserProfile/me";
-        var saveRequest = new HttpRequestMessage(HttpMethod.Post, endpoint)
-        {
-            Content = content
-        };
-        saveRequest.Headers.Add("Accept", "application/json");
-        saveRequest.Headers.Add("Cookie", $"jwt={jwtCookie}");
+                if (saveResponse.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = isNewProfile
+                        ? "Profile created successfully!"
+                        : "Profile updated successfully!";
 
-        var saveResponse = await _httpClient.SendAsync(saveRequest);
-
-        if (saveResponse.IsSuccessStatusCode)
-        {
-            TempData["SuccessMessage"] = isNewProfile
-                ? "Profile created successfully!"
-                : "Profile updated successfully!";
-
-            return RedirectToAction("DriverProfile");
-        }
-        else
-        {
-            var errorContent = await saveResponse.Content.ReadAsStringAsync();
-            _logger.LogError("API save failed: {StatusCode} - {Error}", saveResponse.StatusCode, errorContent);
-            TempData["ErrorMessage"] = "Failed to save profile.";
-            return View(model);
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Exception while saving profile");
-        TempData["ErrorMessage"] = "An error occurred while saving the profile.";
-        return View(model);
-    }
-}
-
-
-
-    [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteProfile()
-{
-    try
-    {
-        var jwtCookie = HttpContext.Request.Cookies["jwt"];
-        if (string.IsNullOrEmpty(jwtCookie))
-        {
-            TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
-            return RedirectToAction("PassengerProfile");
+                    return RedirectToAction("DriverProfile");
+                }
+                else
+                {
+                    var errorContent = await saveResponse.Content.ReadAsStringAsync();
+                    _logger.LogError("API save failed: {StatusCode} - {Error}", saveResponse.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to save profile.";
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception while saving profile");
+                TempData["ErrorMessage"] = "An error occurred while saving the profile.";
+                return View(model);
+            }
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Delete, "api/UserProfile/me");
-        request.Headers.Add("Accept", "application/json");
-        request.Headers.Add("Cookie", $"jwt={jwtCookie}");
 
-        var response = await _httpClient.SendAsync(request);
-        if (response.IsSuccessStatusCode)
-        {
-            TempData["SuccessMessage"] = "Profile deleted successfully!";
-            _logger.LogInformation("Profile deleted successfully");
-        }
-        else
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Delete API call failed with status: {StatusCode}, Error: {Error}", response.StatusCode, errorContent);
-            TempData["ErrorMessage"] = "Failed to delete profile.";
-        }
 
-        return RedirectToAction("PassengerProfile");
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error deleting passenger profile");
-        TempData["ErrorMessage"] = "An error occurred while deleting the profile.";
-        return RedirectToAction("PassengerProfile");
-    }
-}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProfile()
+        {
+            try
+            {
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("PassengerProfile");
+                }
+
+                var request = new HttpRequestMessage(HttpMethod.Delete, "api/UserProfile/me");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Profile deleted successfully!";
+                    _logger.LogInformation("Profile deleted successfully");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Delete API call failed with status: {StatusCode}, Error: {Error}", response.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to delete profile.";
+                }
+
+                return RedirectToAction("PassengerProfile");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting passenger profile");
+                TempData["ErrorMessage"] = "An error occurred while deleting the profile.";
+                return RedirectToAction("PassengerProfile");
+            }
+        }
 
         protected override void Dispose(bool disposing)
         {

@@ -17,8 +17,6 @@ namespace RideShareConnect.Data
 
         // RideShare - Vehicle & Driver Management
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<VehicleDocument> VehicleDocuments { get; set; }
-        public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
         public DbSet<DriverProfile> DriverProfiles { get; set; }
         public DbSet<DriverRating> DriverRatings { get; set; }
 
@@ -87,7 +85,7 @@ namespace RideShareConnect.Data
                 .HasForeignKey(r => r.DriverId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // --- Vehicle ---
+            // --- Vehicle --- (simplified version)
             modelBuilder.Entity<Vehicle>()
                 .HasKey(v => v.VehicleId);
             modelBuilder.Entity<Vehicle>()
@@ -100,24 +98,6 @@ namespace RideShareConnect.Data
                 .Property(v => v.RCDocumentBase64).IsRequired();
             modelBuilder.Entity<Vehicle>()
                 .Property(v => v.InsuranceDocumentBase64).IsRequired();
-            modelBuilder.Entity<Vehicle>()
-                .HasMany(v => v.VehicleDocuments)
-                .WithOne(d => d.Vehicle)
-                .HasForeignKey(d => d.VehicleId)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Vehicle>()
-                .HasMany(v => v.MaintenanceRecords)
-                .WithOne(m => m.Vehicle)
-                .HasForeignKey(m => m.VehicleId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // --- VehicleDocument ---
-            modelBuilder.Entity<VehicleDocument>()
-                .HasKey(d => d.DocumentId);
-
-            // --- MaintenanceRecord ---
-            modelBuilder.Entity<MaintenanceRecord>()
-                .HasKey(m => m.MaintenanceId);
 
             // --- DriverRating ---
             modelBuilder.Entity<DriverRating>()

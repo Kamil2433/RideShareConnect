@@ -17,7 +17,15 @@ builder.Services.AddControllers()
 
 // Configure EF Core with MSSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5, // how many times to retry
+            maxRetryDelay: TimeSpan.FromSeconds(10), // delay between retries
+            errorNumbersToAdd: null // additional SQL error codes to retry
+        )
+    )
+);
+
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
@@ -45,11 +53,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
-builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
-builder.Services.AddScoped<IDriverProfileServiceRepository, DriverProfileService>(); 
-builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
-builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
+// builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
+// builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
+// builder.Services.AddScoped<IDriverProfileServiceRepository, DriverProfileService>(); 
+// builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
+// builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
@@ -69,7 +77,7 @@ builder.Services.AddAuthentication("Cookies")
             return Task.CompletedTask;
         };
     });
-  builder.Services.AddAuthorization();
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
@@ -89,44 +97,44 @@ app.UseCookiePolicy(new CookiePolicyOptions
 });
 app.Use(async (context, next) =>
 {
-     var jwt = context.Request.Cookies["jwt"];
+    var jwt = context.Request.Cookies["jwt"];
     Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
     await next();
 });
 app.Use(async (context, next) =>
 {
-    var jwt = context.Request.Cookies["jwt"];
-    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
+    var jwt = context.Request.Cookies["jwt"];
+    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
 
-    if (!string.IsNullOrEmpty(jwt))
-    {
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        try
-        {
-            var token = handler.ReadJwtToken(jwt);
-            var identity = new System.Security.Claims.ClaimsIdentity(token.Claims, "Cookies");
-            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
-            context.User = principal;
+    if (!string.IsNullOrEmpty(jwt))
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        try
+        {
+            var token = handler.ReadJwtToken(jwt);
+            var identity = new System.Security.Claims.ClaimsIdentity(token.Claims, "Cookies");
+            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+            context.User = principal;
 
-            Console.WriteLine("✅ Backend set HttpContext.User from cookie.");
-            Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
-            Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
-        }
-        catch (Exception ex)
-        {
-           Console.WriteLine("❌ Failed to parse JWT: " + ex.Message);
-        }
-    }
+            Console.WriteLine("✅ Backend set HttpContext.User from cookie.");
+            Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+            Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Failed to parse JWT: " + ex.Message);
+        }
+    }
 
-    await next();
+    await next();
 });
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.Use(async (context, next) =>
 {
-    Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
-    Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
-    await next();
+    Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+    Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+    await next();
 });
 
 app.UseAuthorization();

@@ -18,7 +18,6 @@ namespace RideShareConnect.Models
         [Required]
         public DateTime LicenseExpiryDate { get; set; }
 
-        [StringLength(255)]
         public string LicenseImageUrl { get; set; } = string.Empty;
 
         [Range(0, 50)]
