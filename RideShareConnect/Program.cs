@@ -60,7 +60,8 @@ builder.Services.AddSwaggerGen();
 // builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 builder.Services.AddScoped<IDriverProfileRepository, DriverProfileRepository>();
-// builder.Services.AddScoped<IVehicleRepository, VehicleService>();                     
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();                    
 // builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>

@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using RideShareConnect.Models;
+// using RideShareConnect.Models;
+using RideShareFrontend.Models.DTOs;
 using System.Text;
 using System.Text.Json;
 

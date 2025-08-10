@@ -41,17 +41,133 @@ namespace RideShareFrontend.Controllers
             return View(); // Loads Views/Driver/Index.cshtml
         }
 
-        public IActionResult VehicleManagement()
-        {
-            return View(); // Loads Views/Driver/VehicleManagement.cshtml
-        }
-
         [HttpGet]
         public IActionResult PostRide()
         {
             return View(); // This will look for Views/Driver/PostRide.cshtml
         }
 
+        [HttpGet]
+        public async Task<IActionResult> VehicleManagement()
+        {
+            var model = new VehicleRegistrationViewModel();
+
+            try
+            {
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("Index");
+                }
+
+                // Request to get existing vehicles for logged-in driver
+                var request = new HttpRequestMessage(HttpMethod.Get, "/api/vehicle/my-vehicles");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var vehicles = JsonSerializer.Deserialize<List<VehicleRegistrationViewModel>>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    // If driver has at least one vehicle, prefill the form with first vehicle’s data
+                    if (vehicles != null && vehicles.Count > 0)
+                    {
+                        var firstVehicle = vehicles[0];
+                        model.VehicleType = firstVehicle.VehicleType;
+                        model.InsuranceNumber = firstVehicle.InsuranceNumber;
+                        model.RegistrationExpiry = firstVehicle.RegistrationExpiry;
+                        model.RCDocumentBase64 = firstVehicle.RCDocumentBase64;
+                        model.InsuranceDocumentBase64 = firstVehicle.InsuranceDocumentBase64;
+                        model.LicensePlate = firstVehicle.LicensePlate;
+                        // model.ExistingVehicles = vehicles; // For displaying a list in the view
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to load existing vehicles: {StatusCode}", response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception while loading existing vehicles for VehicleManagement.");
+            }
+
+            return View(model);
+        }
+
+
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VehicleManagement(VehicleRegistrationViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Vehicle Registration model: {Errors}",
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return View(model);
+            }
+
+            try
+            {
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("Index");
+                }
+
+              
+
+                var dto = new
+                {
+                    model.VehicleType,
+                    model.LicensePlate,
+                    model.InsuranceNumber,
+                    model.RegistrationExpiry,
+                    model.RCDocumentBase64,
+                    model.InsuranceDocumentBase64,
+                };
+
+                var json = JsonSerializer.Serialize(dto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, "/api/vehicle/register")
+                {
+                    Content = content
+                };
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Vehicle registered successfully!";
+                    return RedirectToAction("VehicleManagement");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Vehicle registration API failed: {StatusCode} - {Error}", response.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to register vehicle.";
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception during vehicle registration.");
+                TempData["ErrorMessage"] = "An error occurred while registering the vehicle.";
+                return View(model);
+            }
+        }
 
 
 

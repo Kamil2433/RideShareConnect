@@ -1,150 +1,128 @@
+@model RideShareFrontend.Models.DTOs.VehicleRegistrationViewModel
+
 @{
-    Layout = "~/Views/Shared/_DriverLayout.cshtml";
-    ViewBag.Title = "Dashboard";
+    ViewData["Title"] = "Vehicle Management";
+    Layout = "_DriverLayout.cshtml";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/Driver/Driver.css" />
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-
-        p {
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-        }
-
-        .vehicle-form {
-            max-width: 600px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin: 40px auto;
-        }
-
-        .vehicle-form h2 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 25px;
-        }
-
-        .vehicle-form .form-group {
-            margin-bottom: 20px;
-        }
-
-        .vehicle-form label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-            color: #333;
-        }
-
-        .vehicle-form input[type="text"],
-        .vehicle-form input[type="date"],
-        .vehicle-form input[type="file"],
-        .vehicle-form select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-
-        .vehicle-form input[type="file"] {
-            padding: 6px;
-        }
-
-        .vehicle-form button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .vehicle-form button:hover {
-            background-color: #0056b3;
-        }
-
-        .vehicle-types {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .vehicle-types img {
-            width: 70px;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
-
-
-    </style>
+    <link rel="stylesheet" href="~/css/Driver/driver-profile.css" />
 }
 
-<h1>Welcome to the Driver Dashboard</h1>
-<p>This area is accessible only to users with the "Driver" role.</p>
-
-<div class="vehicle-form">
+<div class="container">
     <h2>Vehicle Management</h2>
-    <p>Register your vehicle with valid documents</p>
-<!--<-->@*<div class="vehicle-types">
-        <img src="~/images/vehicles/sedan.png" alt="Sedan" />
-        <img src="~/images/vehicles/suv.png" alt="SUV" />
-        <img src="~/images/vehicles/hatchback.png" alt="Hatchback" />
-    </div>*@
 
-<form asp-controller="Vehicle" asp-action="Register" method="post" enctype="multipart/form-data">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <form asp-action="VehicleManagement" asp-controller="Driver" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
         <div class="form-group">
-            <label for="vehicleType">Vehicle Type</label>
-            <select class="form-control" name="VehicleType" id="vehicleType" required>
-                <option value="">-- Select Type --</option>
+            <label asp-for="VehicleType"></label>
+            <select asp-for="VehicleType" class="form-control">
+                <option value="">Select Vehicle Type</option>
                 <option value="Sedan">Sedan</option>
                 <option value="SUV">SUV</option>
                 <option value="Hatchback">Hatchback</option>
+                <option value="Truck">Truck</option>
+                <option value="Motorcycle">Motorcycle</option>
             </select>
+            <span asp-validation-for="VehicleType" class="text-danger"></span>
+        </div>
+
+  
+
+        <div class="form-group">
+            <label asp-for="LicensePlate"></label>
+            <input asp-for="LicensePlate" class="form-control" placeholder="e.g. ABC-1234" />
+            <span asp-validation-for="LicensePlate" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label for="vehicleNumber">Vehicle Number</label>
-            <input type="text" name="VehicleNumber" id="vehicleNumber" required />
+            <label asp-for="InsuranceNumber"></label>
+            <input asp-for="InsuranceNumber" class="form-control" />
+            <span asp-validation-for="InsuranceNumber" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label for="insuranceNumber">Insurance Number</label>
-            <input type="text" name="InsuranceNumber" id="insuranceNumber" required />
+            <label asp-for="RegistrationExpiry"></label>
+            <input asp-for="RegistrationExpiry" type="date" class="form-control" />
+            <span asp-validation-for="RegistrationExpiry" class="text-danger"></span>
         </div>
 
+        <!-- RC Document Upload -->
         <div class="form-group">
-            <label for="registrationExpiry">Registration Expiry Date</label>
-            <input type="date" name="RegistrationExpiry" id="registrationExpiry" required />
+            <label>RC Document</label>
+            <input type="file" id="RCDocumentFile" name="RCDocumentFile" class="form-control" accept="image/*,.pdf" />
+            <input type="hidden" asp-for="RCDocumentBase64" id="RCDocumentBase64" />
+            <span asp-validation-for="RCDocumentBase64" class="text-danger"></span>
+            <img id="rcPreview" src="@(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "" : $"data:image/*;base64,{Model.RCDocumentBase64}")"
+                 class="img-thumbnail mt-2"
+                 style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "none" : "block")" />
         </div>
 
+        <!-- Insurance Document Upload -->
         <div class="form-group">
-            <label for="rcDocument">Upload RC Document</label>
-            <input type="file" name="RCDocument" id="rcDocument" accept=".pdf,.jpg,.jpeg,.png" required />
+            <label>Insurance Document</label>
+            <input type="file" id="InsuranceDocumentFile" name="InsuranceDocumentFile" class="form-control" accept="image/*,.pdf" />
+            <input type="hidden" asp-for="InsuranceDocumentBase64" id="InsuranceDocumentBase64" />
+            <span asp-validation-for="InsuranceDocumentBase64" class="text-danger"></span>
+            <img id="insurancePreview" src="@(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "" : $"data:image/*;base64,{Model.InsuranceDocumentBase64}")"
+                 class="img-thumbnail mt-2"
+                 style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "none" : "block")" />
         </div>
 
-        <div class="form-group">
-            <label for="insuranceDocument">Upload Insurance Document</label>
-            <input type="file" name="InsuranceDocument" id="insuranceDocument" accept=".pdf,.jpg,.jpeg,.png" required />
-        </div>
-
-        <button type="submit">Submit</button>
+        <button type="submit" class="btn btn-primary">Save Vehicle</button>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // RC Document Upload & Preview
+        document.getElementById("RCDocumentFile").addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    document.getElementById("RCDocumentBase64").value = reader.result.split(',')[1];
+                    if (file.type.startsWith('image/')) {
+                        const preview = document.getElementById("rcPreview");
+                        preview.src = reader.result;
+                        preview.style.display = "block";
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Insurance Document Upload & Preview
+        document.getElementById("InsuranceDocumentFile").addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    document.getElementById("InsuranceDocumentBase64").value = reader.result.split(',')[1];
+                    if (file.type.startsWith('image/')) {
+                        const preview = document.getElementById("insurancePreview");
+                        preview.src = reader.result;
+                        preview.style.display = "block";
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // License plate formatting (uppercase)
+        document.getElementById("LicensePlate").addEventListener("input", function(e) {
+            this.value = this.value.toUpperCase();
+        });
+    </script>
+}
