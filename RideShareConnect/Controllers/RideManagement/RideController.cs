@@ -13,10 +13,49 @@ namespace RideShareConnect.Controllers
     {
         private readonly IRideService _rideService;
 
-        public RideController(IRideService rideService)
+        private readonly IEmailService _emailService;
+
+
+        public RideController(IRideService rideService,IEmailService emailService)
         {
             _rideService = rideService;
+            _emailService = emailService;
+
         }
+
+
+
+        [HttpPost("booking/approve")]
+        public async Task<IActionResult> ApproveOrRejectBooking([FromBody] ApproveBookingDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null)
+                return Unauthorized(new { message = "UserId claim not found in token." });
+
+            if (!int.TryParse(userIdClaim.Value, out int driverId))
+                return BadRequest(new { message = "Invalid UserId format." });
+
+            var result = await _rideService.ApproveOrRejectBookingAsync(dto.BookingId, driverId, dto.IsApproved);
+
+            if (!result)
+                return BadRequest(new { message = "Failed to update booking status or unauthorized action." });
+
+            // Optionally, send an email notification to the user about the booking status
+
+            if (dto.IsApproved)
+            {
+                var passengerEmail = await _rideService.GetPassengerEmailByBookingIdAsync(dto.BookingId);
+                if (!string.IsNullOrEmpty(passengerEmail))
+                {
+                    await _emailService.SendEmailAsync(passengerEmail, "Your booking Request has been accepted", "Your booking request has been accepted by the driver. Please check your ride details on the platform.");
+                }
+            }
+            return Ok(new { message = $"Booking {(dto.IsApproved ? "approved" : "rejected")} successfully!" });
+        }
+
 
 
         [HttpGet("bookings")]
@@ -30,6 +69,21 @@ namespace RideShareConnect.Controllers
                 return BadRequest(new { message = "Invalid UserId format." });
 
             var bookings = await _rideService.GetDriverRideBookingsByStatusAsync(driverId);
+            return Ok(bookings);
+        }
+
+
+         [HttpGet("bookingspassenger")]
+        public async Task<IActionResult> GetPassengerBookings()
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null)
+                return Unauthorized(new { message = "UserId claim not found in token." });
+
+            if (!int.TryParse(userIdClaim.Value, out int PassId))
+                return BadRequest(new { message = "Invalid UserId format." });
+
+            var bookings = await _rideService.GetDriverRideBookingsByStatusAsyncPass(PassId);
             return Ok(bookings);
         }
 

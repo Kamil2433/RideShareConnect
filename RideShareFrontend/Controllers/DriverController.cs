@@ -83,6 +83,52 @@ namespace RideShareConnect.Controllers
             }
         }
 
+        [HttpPost("approve-booking")]
+        public async Task<IActionResult> ApproveBooking(int bookingId, bool isApproved)
+        {
+            var token = HttpContext.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Unauthorized. Please log in.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("ApiClient");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                var response = await client.PostAsJsonAsync("api/ride/booking/approve", new
+                {
+                    bookingId = bookingId,
+                    isApproved = isApproved
+                });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = $"Booking {(isApproved ? "approved" : "rejected")} successfully!";
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = $"Failed to update booking status: {errorContent}";
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                TempData["Error"] = $"Service unavailable: {httpEx.Message}";
+                Console.WriteLine($"HTTP Exception: {httpEx}");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An unexpected error occurred.";
+                Console.WriteLine($"Unexpected error: {ex}");
+            }
+
+            return RedirectToAction("BookingView");
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostRide(RideCreateDto ride)
         {

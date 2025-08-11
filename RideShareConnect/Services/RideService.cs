@@ -17,6 +17,20 @@ namespace RideShareConnect.Services
             _rideRepository = rideRepository;
         }
 
+
+
+        public async Task<string?> GetPassengerEmailByBookingIdAsync(int bookingId)
+        {
+            return await _rideRepository.GetPassengerEmailByBookingIdAsync(bookingId);
+        }
+
+
+        public async Task<bool> ApproveOrRejectBookingAsync(int bookingId, int driverId, bool isApproved)
+        {
+            return await _rideRepository.ApproveOrRejectBookingAsync(bookingId, driverId, isApproved);
+        }
+
+
         public async Task<IEnumerable<RideBookingDto>> GetDriverRideBookingsByStatusAsync(int driverId)
         {
             var statuses = new List<string> { "pending", "confirmed" };
@@ -38,28 +52,50 @@ namespace RideShareConnect.Services
         }
 
 
-        public async Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto)
+          public async Task<IEnumerable<RideBookingDto>> GetDriverRideBookingsByStatusAsyncPass(int PassId)
         {
-            var rides = await _rideRepository.SearchRidesAsync(searchDto);
+            var statuses = new List<string> { "pending", "confirmed" , "rejected"};
 
-            return rides.Select(ride => new RideDto
+            var bookings = await _rideRepository.GetBookingsByPassengerIdWithStatusAsync(PassId, statuses);
+
+            return bookings.Select(b => new RideBookingDto
             {
-                RideId = ride.RideId,
-                DriverId = ride.DriverId,
-                VehicleId = ride.VehicleId,
-                Origin = ride.Origin,
-                Destination = ride.Destination,
-                DepartureTime = ride.DepartureTime,
-                ArrivalTime = ride.ArrivalTime,
-                AvailableSeats = ride.AvailableSeats,
-                PricePerSeat = ride.PricePerSeat,
-                RideType = ride.RideType,
-                Status = ride.Status,
-                Notes = ride.Notes,
-                IsRecurring = ride.IsRecurring
+                BookingId = b.BookingId,
+                RideId = b.RideId,
+                PassengerId = b.PassengerId,
+                SeatsBooked = b.SeatsBooked,
+                TotalAmount = b.TotalAmount,
+                BookingStatus = b.BookingStatus,
+                BookingTime = b.BookingTime,
+                PickupPoint = b.PickupPoint,
+                DropPoint = b.DropPoint
             });
         }
 
+
+
+        public async Task<IEnumerable<RideDto>> SearchRidesAsync(RideSearchDto searchDto)
+        {
+            var rideResults = await _rideRepository.SearchRidesAsync(searchDto);
+
+            return rideResults.Select(result => new RideDto
+            {
+                RideId = result.Ride.RideId,
+                DriverId = result.Ride.DriverId,
+                DriverName = result.DriverFirstName,
+                VehicleId = result.Ride.VehicleId,
+                Origin = result.Ride.Origin,
+                Destination = result.Ride.Destination,
+                DepartureTime = result.Ride.DepartureTime,
+                ArrivalTime = result.Ride.ArrivalTime,
+                AvailableSeats = result.Ride.AvailableSeats,
+                PricePerSeat = result.Ride.PricePerSeat,
+                RideType = result.Ride.RideType,
+                Status = result.Ride.Status,
+                Notes = result.Ride.Notes,
+                IsRecurring = result.Ride.IsRecurring
+            });
+        }
 
         public async Task<bool> CreateRideAsync(RideCreateDto dto, int driverId)
         {
@@ -101,7 +137,7 @@ namespace RideShareConnect.Services
                     EstimatedTime = dto.DepartureTime,
                     IsPickupPoint = true,
                     IsDropPoint = false,
-                
+
                 });
 
 
@@ -124,7 +160,7 @@ namespace RideShareConnect.Services
                             EstimatedTime = dto.DepartureTime.AddMinutes(sequenceOrder * 10), // Example estimation
                             IsPickupPoint = false,
                             IsDropPoint = false,
-                        
+
                         });
                     }
                 }
@@ -142,7 +178,7 @@ namespace RideShareConnect.Services
                     EstimatedTime = dto.ArrivalTime,
                     IsPickupPoint = false,
                     IsDropPoint = true,
-                  
+
                 });
 
                 await _rideRepository.AddRoutePointsAsync(routePoints);
@@ -164,7 +200,7 @@ namespace RideShareConnect.Services
                 DropPoint = dto.DropPoint,
                 PassengerNotes = dto.PassengerNotes,
                 BookingStatus = "pending",
-                CancellationReason="null",
+                CancellationReason = "null",
                 BookingTime = DateTime.UtcNow
             };
 

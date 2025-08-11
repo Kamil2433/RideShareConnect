@@ -82,9 +82,10 @@ namespace RideShareConnect.Controllers
         [HttpGet]
         public IActionResult SearchRide()
         {
-            ViewBag.Message = TempData["Message"];
+            ViewBag.Msg = TempData["Message"];
             ViewBag.Msg = TempData["Msg"];
             ViewBag.Success = TempData["Success"];
+            
             return View();
         }
 
@@ -192,7 +193,19 @@ namespace RideShareConnect.Controllers
                         PropertyNameCaseInsensitive = true
                     });
 
+                    if (rideResults == null || !rideResults.Any())
+                    {
+                        TempData["Msg"] = "No rides found matching your criteria.";
+                    }
+                    else
+                    {
+                        TempData["Success"] = "Rides found successfully!";
+                    }
+                    // Console.WriteLine(rideResults);
                     ViewBag.RideResults = rideResults ?? new List<RideViewModel>();
+                    ViewBag.Message = TempData["Message"];
+                    ViewBag.Msg = TempData["Msg"];
+                    ViewBag.Success = TempData["Success"];
                     return View(searchDto);
                 }
 
