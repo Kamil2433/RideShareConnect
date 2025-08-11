@@ -76,7 +76,7 @@ namespace RideShareFrontend.Controllers
                         PropertyNameCaseInsensitive = true
                     });
 
-                    // If driver has at least one vehicle, prefill the form with first vehicle’s data
+                   
                     if (vehicles != null && vehicles.Count > 0)
                     {
                         var firstVehicle = vehicles[0];
@@ -86,7 +86,7 @@ namespace RideShareFrontend.Controllers
                         model.RCDocumentBase64 = firstVehicle.RCDocumentBase64;
                         model.InsuranceDocumentBase64 = firstVehicle.InsuranceDocumentBase64;
                         model.LicensePlate = firstVehicle.LicensePlate;
-                        // model.ExistingVehicles = vehicles; // For displaying a list in the view
+                        
                     }
                 }
                 else
