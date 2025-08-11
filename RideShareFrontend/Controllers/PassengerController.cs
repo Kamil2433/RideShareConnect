@@ -48,11 +48,62 @@ namespace RideShareConnect.Controllers
             }
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var token = HttpContext.Request.Cookies["jwt"];
             _logger.LogInformation("Authenticated: {IsAuthenticated}, Role: {Role}, JWT: {Token}",
                 User.Identity.IsAuthenticated, User.FindFirst(ClaimTypes.Role)?.Value, token);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("No JWT token found in cookies");
+                ViewBag.Bookings = new List<PassengerBookingDto>();
+                ViewBag.TotalRides = 0;
+                ViewBag.TotalSpent = 0;
+                return View();
+            }
+
+            try
+            {
+                var client = _httpClient;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                // Fetch passenger's bookings
+                var bookingsResponse = await client.GetAsync("/api/Ride/bookingspassenger");
+
+                if (bookingsResponse.IsSuccessStatusCode)
+                {
+                    var bookingsJson = await bookingsResponse.Content.ReadAsStringAsync();
+                    var bookings = JsonSerializer.Deserialize<List<PassengerBookingDto>>(bookingsJson,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    ViewBag.Bookings = bookings ?? new List<PassengerBookingDto>();
+
+                    // Calculate stats for dashboard
+                    ViewBag.TotalRides = bookings?.Count ?? 0;
+                    ViewBag.TotalSpent = bookings?
+                        .Where(b => b.BookingStatus == "Confirmed")
+                        .Sum(b => b.TotalAmount) ?? 0;
+                }
+                else
+                {
+                    var errorContent = await bookingsResponse.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to fetch bookings: {StatusCode} - {Error}",
+                        bookingsResponse.StatusCode, errorContent);
+                    ViewBag.Bookings = new List<PassengerBookingDto>();
+                    ViewBag.TotalRides = 0;
+                    ViewBag.TotalSpent = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching passenger bookings");
+                ViewBag.Bookings = new List<PassengerBookingDto>();
+                ViewBag.TotalRides = 0;
+                ViewBag.TotalSpent = 0;
+            }
+
             return View();
         }
 
@@ -85,7 +136,7 @@ namespace RideShareConnect.Controllers
             ViewBag.Msg = TempData["Message"];
             ViewBag.Msg = TempData["Msg"];
             ViewBag.Success = TempData["Success"];
-            
+
             return View();
         }
 
@@ -450,6 +501,6 @@ namespace RideShareConnect.Controllers
 
 
 
-        
+
     }
 }
