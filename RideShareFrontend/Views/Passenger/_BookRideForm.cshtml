@@ -18,14 +18,14 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="SeatsBooked" class="form-label"></label>
+                        <label asp-for="SeatsBooked" class="form-label">Seats (Should not be more than Available seats)</label>
                         <input asp-for="SeatsBooked" class="form-control" />
                         <span asp-validation-for="SeatsBooked" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="TotalAmount" class="form-label"></label>
-                        <input asp-for="TotalAmount" class="form-control" />
+                        <input asp-for="TotalAmount" class="form-control"  />
                         <span asp-validation-for="TotalAmount" class="text-danger"></span>
                     </div>
 
@@ -61,7 +61,7 @@
     </div>
 </div>
 
-
+@* 
 <script>
     const rides = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.RideResults));
 
@@ -106,7 +106,7 @@
 
         renderRides(filtered);
     });
-</script>
+</script> *@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     crossorigin="anonymous"></script>

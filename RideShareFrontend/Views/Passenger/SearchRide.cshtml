@@ -159,7 +159,7 @@
         {
             <div class="alert alert-success">@ViewBag.Success</div>
         }
-        
+
         <form asp-action="SearchRide" method="post" id="searchRideForm">
             @Html.AntiForgeryToken()
 
@@ -271,19 +271,19 @@
 
                     filteredRides.forEach(ride => {
                         const row = `
-                                                                            <tr>
-                                                                                <td>${ride.DriverName || " "}</td>
-                                                                                <td>${ride.Origin}</td>
-                                                                                <td>${ride.Destination}</td>
-                                                                                <td>${new Date(ride.DepartureTime).toLocaleString()}</td>
-                                                                                <td class="text-center">${ride.AvailableSeats}</td>
-                                                                                <td class="text-end">${parseFloat(ride.PricePerSeat).toFixed(2)}</td>
-                                                                                 <td class="text-center">
-                                                                                                   <button class="btn btn-sm btn-success" onclick="openBookRideModal(${ride.RideId})">Book Ride</button>
+                                                                                        <tr>
+                                                                                            <td>${ride.DriverName || " "}</td>
+                                                                                            <td>${ride.Origin}</td>
+                                                                                            <td>${ride.Destination}</td>
+                                                                                            <td>${new Date(ride.DepartureTime).toLocaleString()}</td>
+                                                                                            <td class="text-center">${ride.AvailableSeats}</td>
+                                                                                            <td class="text-end">${parseFloat(ride.PricePerSeat).toFixed(2)}</td>
+                                                                                             <td class="text-center">
+                                                                                                               <button class="btn btn-sm btn-success" onclick="openBookRideModal('${ride.RideId}', '${ride.PricePerSeat}', '${ride.AvailableSeats}')">Book Ride</button>
 
-                                                                                </td>
-                                                                            </tr>
-                                                                        `;
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    `;
                         tbody.innerHTML += row;
                     });
                 }
@@ -322,12 +322,24 @@
 
     <script>
 
-        function openBookRideModal(rideId) {
-            console.log("input ride", rideId);
+        function openBookRideModal(rideId, pricePerSeat, availableSeats) {
+            console.log("Opening modal for ride:", rideId, "Price:", pricePerSeat, "Available seats:", availableSeats);
+
+            // Set ride ID
             document.querySelector('#bookRideModal input[name="RideId"]').value = rideId;
+
+         document.querySelector('#bookRideModal input[name="SeatsBooked"]').min = 1;
+
+         document.querySelector('#bookRideModal input[name="SeatsBooked"]').max = availableSeats;
+
+            document.querySelector('#bookRideModal input[name="TotalAmount"]').value = pricePerSeat;
+
+            // Show modal
             var modal = new bootstrap.Modal(document.getElementById('bookRideModal'));
             modal.show();
         }
+
+  
 
         function submitBooking(e) {
             e.preventDefault();
