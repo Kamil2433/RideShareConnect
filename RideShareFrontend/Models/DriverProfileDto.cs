@@ -37,7 +37,7 @@ namespace RideShareFrontend.Models.DTOs
         [Display(Name = "Driver's License Number")]
         public string LicenseNumber { get; set; }
 
-        [Required(ErrorMessage = "License expiry date is required")]
+       [Required(ErrorMessage = "License expiry date is required")]
         [DataType(DataType.Date)]
         [Display(Name = "License Expiry Date")]
         public DateTime LicenseExpiryDate { get; set; }

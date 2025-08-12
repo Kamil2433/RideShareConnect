@@ -19,7 +19,10 @@ namespace RideShareFrontend.Models.DTOs
         [StringLength(50, ErrorMessage = "Insurance number cannot exceed 50 characters")]
         public string InsuranceNumber { get; set; }
 
-        [Required(ErrorMessage = "Registration expiry date is required")]
+      [Required(ErrorMessage = "Registration expiry date is required")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Registration Expiry")]
+        // [FutureDateExcludingToday(ErrorMessage = "Registration expiry must be after today")]
         public DateTime RegistrationExpiry { get; set; }
 
         [Required(ErrorMessage = "RC document is required")]
