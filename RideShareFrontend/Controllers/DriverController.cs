@@ -34,8 +34,6 @@ namespace RideShareFrontend.Controllers
 
 
 
-
-
         public IActionResult Index()
         {
             return View(); // Loads Views/Driver/Index.cshtml
