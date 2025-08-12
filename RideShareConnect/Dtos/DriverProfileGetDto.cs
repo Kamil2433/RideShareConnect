@@ -18,7 +18,6 @@ namespace RideShareConnect.Dtos
         public int YearsOfExperience { get; set; }
 
         // Emergency Contact
-        public bool isverfied { get; set; } // Indicates if the driver is verified
 
         public string EmergencyContactName { get; set; }
         public string EmergencyContactPhone { get; set; }
