@@ -23,6 +23,8 @@ namespace RideShareConnect.Models.Admin
 
         
 
+        
+
         [Required]
         public bool IsActive { get; set; }
 

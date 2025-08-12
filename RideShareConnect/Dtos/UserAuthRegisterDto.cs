@@ -56,4 +56,8 @@ namespace RideShareConnect.Dtos
         public string Message { get; set; }
         public string Token { get; set; }
     }
+    
+
+
+
 }

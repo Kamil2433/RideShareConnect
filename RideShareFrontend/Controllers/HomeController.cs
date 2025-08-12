@@ -17,6 +17,11 @@ public class HomeController : Controller
     {
         return View();
     }
+      [HttpGet("/VerifyOtp")]
+     public IActionResult VerifyOtp()
+    {
+        return View();
+    }
     
      [HttpPost("/Logout")]
     public IActionResult Logout()

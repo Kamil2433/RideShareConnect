@@ -33,12 +33,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
 builder.Services.AddAutoMapper(typeof(UserProfileAutoMapperProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ResetPasswordMapperProfile));
 
 
 // Register repositories and services
 builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IResetPasswordRepository, ResetPasswordRepository>();
+
 
 // Configure CORS
 builder.Services.AddCors(options =>

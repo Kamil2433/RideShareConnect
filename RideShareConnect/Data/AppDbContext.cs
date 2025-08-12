@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using RideShareConnect.Models;
+using RideShareConnect.Data;
+
 using RideShareConnect.Models.PayModel;
 using RideShareConnect.Models.Admin;
+
+
 
 namespace RideShareConnect.Data
 {
@@ -14,18 +18,22 @@ namespace RideShareConnect.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<TwoFactorCode> TwoFactorCodes { get; set; }
+        public DbSet<ResetPasswordOtp> ResetPasswordOtps { get; set; }
+
 
         // RideShare - Vehicle & Driver Management
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<DriverProfile> DriverProfiles { get; set; }
         public DbSet<DriverRating> DriverRatings { get; set; }
 
-        // Wallet
-        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Wallet> Wallets{get;set;}
         public DbSet<WalletTransaction> WalletTransaction { get; set; }
 
-        // Admin
-        public DbSet<Admin> Admins { get; set; }
+
+
+
+        // ✅ Admin module tables
+         public DbSet<Admin> Admins { get; set; }
         public DbSet<Analytics> Analytics { get; set; }
         public DbSet<Commission> Commissions { get; set; }
         public DbSet<Complaints> Complaints { get; set; }
@@ -70,6 +78,21 @@ namespace RideShareConnect.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+                // --- ResetPasswordOtp ---
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .HasKey(r => r.Id);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.Otp)
+                .IsRequired()
+                .HasMaxLength(10);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.CreatedAt)
+                .IsRequired();
 
             // --- DriverProfile ---
             modelBuilder.Entity<DriverProfile>()
