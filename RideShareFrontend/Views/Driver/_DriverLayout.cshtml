@@ -50,7 +50,13 @@
 
                     <li><a href="/driver/PostRide"><i class="fas fa-car"></i><span>POST RIDE</span></a></li>
 
-                    <li><a href="/driver/BookingView"><i class="fas fa-car"></i><span>ACCEPT RIDE</span></a></li>
+                    <li><a href="/driver/BookingView"><i class="fas fa-handshake"></i><span>ACCEPT RIDE</span></a></li>
+
+                    <li> <a href="/Driver/Myrides">
+                            <i class="fas fa-list-alt"></i>
+                            <span>MY RIDES</span>
+                        </a>
+                    </li>
 
                     <li><a href="/driver/Wallet"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
 
@@ -60,11 +66,11 @@
 
                     <li><a href="/driver/Complaints"><i class="fas fa-history"></i><span>COMPLAINTS</span></a></li>
 
-                  <li>
-    <button type="button" onclick="logoutUser()" style="background:none;border:none;color:inherit;">
-        <i class="fas fa-sign-out-alt"></i><span>LOGOUT</span>
-    </button>
-</li>
+                    <li>
+                        <button type="button" onclick="logoutUser()" style="background:none;border:none;color:inherit;">
+                            <i class="fas fa-sign-out-alt"></i><span>LOGOUT</span>
+                        </button>
+                    </li>
 
                 </ul>
 
@@ -95,28 +101,28 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
-     <script>
-    async function logoutUser() {
-        try {
-            const response = await fetch("http://localhost:5157/api/auth/logout", {
-                method: "POST",
-                credentials: "include" // This sends the cookie
-            });
+    <script>
+        async function logoutUser() {
+            try {
+                const response = await fetch("http://localhost:5157/api/auth/logout", {
+                    method: "POST",
+                    credentials: "include" // This sends the cookie
+                });
 
-            if (response.ok) {
-                alert("Logged out successfully.");
-                window.location.href = "/";
-            } else {
-                alert("Failed to log out.");
+                if (response.ok) {
+                    alert("Logged out successfully.");
+                    window.location.href = "/";
+                } else {
+                    alert("Failed to log out.");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                alert("An error occurred while logging out.");
             }
-        } catch (error) {
-            console.error("Logout error:", error);
-            alert("An error occurred while logging out.");
         }
-    }
-</script>
+    </script>
 
-@RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 
 
 

@@ -24,4 +24,9 @@ namespace RideShareFrontend.DTOs
 
         public string? RoutePoints { get; set; }
     }
+
+
+    
+    
+
 }

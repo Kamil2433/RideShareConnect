@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Net;
 
+
 using RideShareConnect.Models;
 
 
@@ -24,7 +25,8 @@ namespace RideShareConnect.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // return View();
+    return RedirectToAction("PostRide", "Driver");
         }
 
         [HttpGet]
@@ -34,6 +36,50 @@ namespace RideShareConnect.Controllers
             ViewBag.Msg = TempData["Msg"];
             ViewBag.Success = TempData["Success"];
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Myrides()
+        {
+            var token = HttpContext.Request.Cookies["jwt"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Unauthorized. Please log in.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("ApiClient");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+
+                var response = await client.GetAsync("api/Ride/user");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var rides = JsonSerializer.Deserialize<List<RideDto>>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    return View(rides);
+                }
+
+                TempData["Error"] = $"Failed to fetch rides: {response.StatusCode}";
+                return View(new List<RideDto>());
+            }
+            catch (HttpRequestException httpEx)
+            {
+                TempData["Error"] = $"Service unavailable: {httpEx.Message}";
+                return View(new List<RideDto>());
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Unexpected error: {ex.Message}";
+                return View(new List<RideDto>());
+            }
         }
 
 
