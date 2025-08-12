@@ -15,7 +15,7 @@ namespace RideShareConnect.Services
         {
             _vehicleRepository = vehicleRepository;
         }
-
+// Retrieves the driver ID based on the user ID
         public async Task<int> GetDriverIdByUserIdAsync(int userId)
         {
             var driverProfile = await _vehicleRepository.GetDriverProfileByUserIdAsync(userId);

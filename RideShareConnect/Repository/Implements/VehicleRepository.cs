@@ -13,6 +13,8 @@ namespace RideShareConnect.Repository.Implements
     {
         private readonly AppDbContext _context;
 
+
+        // Constructor to inject the database context   
         public VehicleRepository(AppDbContext context)
         {
             _context = context;
@@ -34,7 +36,7 @@ namespace RideShareConnect.Repository.Implements
            
             };
         }
-
+// Create a new vehicle and return its ID
         public async Task<int> CreateVehicleAsync(Vehicle vehicle)
         {
             await _context.Vehicles.AddAsync(vehicle);

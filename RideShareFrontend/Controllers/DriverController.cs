@@ -16,6 +16,9 @@ namespace RideShareFrontend.Controllers
     {
 
         private readonly HttpClient _httpClient;
+
+
+        //iconfiguration and logger for dependency injection, this is used to fetch the base URL for the API and log messages form appsetting.json file
         private readonly IConfiguration _configuration;
         private readonly ILogger<DriverController> _logger;
 
@@ -46,6 +49,7 @@ namespace RideShareFrontend.Controllers
             return View(); // This will look for Views/Driver/PostRide.cshtml
         }
 
+
         [HttpGet]
         public async Task<IActionResult> VehicleManagement()
         {
@@ -70,12 +74,12 @@ namespace RideShareFrontend.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
+                    // Deserialize the JSON response to a list of VehicleRegistrationViewModel
                     var vehicles = JsonSerializer.Deserialize<List<VehicleRegistrationViewModel>>(json, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
-
-
+         
                     if (vehicles != null && vehicles.Count > 0)
                     {
                         var firstVehicle = vehicles[0];
@@ -95,6 +99,7 @@ namespace RideShareFrontend.Controllers
             }
             catch (Exception ex)
             {
+                // Log the exception and show an error message
                 _logger.LogError(ex, "Exception while loading existing vehicles for VehicleManagement.");
             }
 
