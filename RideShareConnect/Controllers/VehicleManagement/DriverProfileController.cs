@@ -12,9 +12,13 @@ namespace RideShareConnect.Controllers
     public class DriverProfileController : ControllerBase
     {
         private readonly IDriverProfileService _driverProfileService;
+        private readonly ILogger<DriverProfileController> _logger;
 
-        public DriverProfileController(IDriverProfileService driverProfileService)
+
+        public DriverProfileController(IDriverProfileService driverProfileService, ILogger<DriverProfileController> logger)
         {
+            _logger = logger;
+
             _driverProfileService = driverProfileService;
         }
 
@@ -23,7 +27,7 @@ namespace RideShareConnect.Controllers
         {
             var userId = int.Parse(User.FindFirstValue("UserId") ?? "0");
             var profile = await _driverProfileService.GetDriverProfileAsync(userId);
-
+            _logger.LogDebug("Retrieved profile: {@Profile}", profile);
             if (profile == null) return NotFound("Profile not found");
 
             return Ok(profile);

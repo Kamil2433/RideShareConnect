@@ -23,6 +23,8 @@ namespace RideShareConnect.Services.Implements
             var userProfile = await _userProfileRepo.GetProfileByUserIdAsync(userId);
             var driverProfile = await _driverProfileRepo.GetByUserIdAsync(userId);
 
+            // Console.WriteLine($"driver Profile: {driverProfile}");
+
             if (userProfile == null) return null;
 
             var dto = MapToDriverProfileDto(userProfile, driverProfile);
@@ -66,7 +68,7 @@ namespace RideShareConnect.Services.Implements
                 PhoneNumber = userProfile.PhoneNumber,
                 Address = userProfile.Address,
                 ProfilePicture = userProfile.ProfilePicture,
-                IsNewProfile = userProfile.ProfileId == 0
+                IsNewProfile = userProfile.ProfileId == 0,
             };
 
             if (driverProfile != null)
@@ -78,7 +80,11 @@ namespace RideShareConnect.Services.Implements
                 dto.YearsOfExperience = driverProfile.YearsOfExperience;
                 dto.EmergencyContactName = driverProfile.EmergencyContactName;
                 dto.EmergencyContactPhone = driverProfile.EmergencyContactPhone;
+                dto.isverfied=driverProfile.IsVerified;
+
             }
+
+            console.WriteLine($"Mapped DriverProfileDto: {dto}");
 
             return dto;
         }
