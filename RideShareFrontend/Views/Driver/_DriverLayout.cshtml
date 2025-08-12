@@ -36,21 +36,14 @@
 
             <nav class="sidebar">
 
-                <div class="sidebar-header">
+                @await Component.InvokeAsync("DriverSidebar")
 
-                    <div class="user-avatar"><i class="fas fa-user"></i></div>
-
-                    <h3><a href="/driver/UserProfile">DRIVER PROFILE
-                        </a>
-                    </h3>
-
-                </div>
 
                 <ul class="sidebar-menu">
 
                     <li><a href="/driver/PostRide"><i class="fas fa-car"></i><span>POST RIDE</span></a></li>
 
-                    <li><a href="/driver/DriverProfile"><i class="fas fa-user-check"></i><span>Profile
+                    <li><a href="/driver/UserProfile"><i class="fas fa-user-check"></i><span>Profile
                                 Verification</span></a></li>
 
                     <li><a href="/driver/VehicleManagement"><i class="fas fa-car-alt"></i><span>Vehicle
