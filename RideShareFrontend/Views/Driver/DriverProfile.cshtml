@@ -5,6 +5,8 @@
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/Driver/driver-profile.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 }
 
 <div class="container">
@@ -26,11 +28,18 @@
     <form asp-action="DriverProfile" id="profileForm" method="post" enctype="multipart/form-data" novalidate>
         @Html.AntiForgeryToken()
 
-
-    @if (ViewData["IsVerified"] != null && !(bool)ViewData["IsVerified"])
+@if (Model.isverfied)
     {
-        <div class="alert alert-warning">
-            <strong>Profile not verified yet!</strong> Your profile Verfication is pending..
+        <div class="verification-status verified">
+        <i class="fas fa-check-circle verification-icon"></i>
+            <span>Your profile is verified and approved</span>
+        </div>
+    }
+    else
+    {
+        <div class="verification-status not-verified">
+        <i class="fas fa-exclamation-circle verification-icon"></i>
+            <span>Your profile is not verified yet. Please wait for admin approval.</span>
         </div>
     }
         
@@ -113,6 +122,8 @@
         }
     </form>
 </div>
+
+
 
 @section Scripts {
     <script>

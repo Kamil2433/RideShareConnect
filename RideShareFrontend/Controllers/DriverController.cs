@@ -344,7 +344,6 @@ namespace RideShareFrontend.Controllers
                 {
                     var json = await response.Content.ReadAsStringAsync();
 
-                    Console.WriteLine("Response JSON: " + json);
                     var profile = JsonSerializer.Deserialize<DriverProfileDto>(json, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
