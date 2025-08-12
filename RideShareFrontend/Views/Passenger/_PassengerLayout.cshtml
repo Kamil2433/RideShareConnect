@@ -22,10 +22,7 @@
     @if (isAuthenticated && role == "Passenger")
     {
         <nav class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-avatar"><i class="fas fa-user"></i></div>
-                <h3><a href="/Passenger/PassengerProfile">PASSENGER PROFILE</a></h3>
-            </div>
+            @await Component.InvokeAsync("PassengerSidebar")
 
             <ul class="sidebar-menu">
                 <li><a href="/Passenger/AcceptRide"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li>

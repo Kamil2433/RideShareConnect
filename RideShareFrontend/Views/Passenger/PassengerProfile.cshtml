@@ -122,12 +122,29 @@
 
 
     <script>
-    document.getElementById("ProfilePictureFile").addEventListener("change", function () {
-        const fileInput = this;
-        if (fileInput.files.length > 0) {
-            // Simulate assigning static path instead of uploading the file
-            document.getElementById("ProfilePicture").value = "/img/pic.jpg";
-        }
-    });
+document.getElementById("ProfilePictureFile").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = function () {
+            // Save Base64 string to hidden input
+            document.getElementById("ProfilePicture").value = reader.result;
+
+            // OPTIONAL: Show preview
+            let preview = document.getElementById("profilePreview");
+            if (!preview) {
+                preview = document.createElement("img");
+                preview.id = "profilePreview";
+                preview.className = "img-thumbnail mt-2";
+                preview.style.maxWidth = "200px";
+                e.target.parentNode.appendChild(preview);
+            }
+            preview.src = reader.result;
+            preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    }
+});
 </script>
+
 }
