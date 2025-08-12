@@ -61,5 +61,11 @@ namespace RideShareFrontend.Models.DTOs
         [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
         [Display(Name = "Emergency Contact Phone")]
         public string EmergencyContactPhone { get; set; }
+
+
+        public bool isverfied { get; set; } // Indicates if the driver is verified
+
+        public bool IsVerified { get; set; }
+
     }
 }

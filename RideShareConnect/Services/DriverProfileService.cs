@@ -23,7 +23,6 @@ namespace RideShareConnect.Services.Implements
             var userProfile = await _userProfileRepo.GetProfileByUserIdAsync(userId);
             var driverProfile = await _driverProfileRepo.GetByUserIdAsync(userId);
 
-            // Console.WriteLine($"driver Profile: {driverProfile}");
 
             if (userProfile == null) return null;
 
@@ -84,7 +83,6 @@ namespace RideShareConnect.Services.Implements
 
             }
 
-            console.WriteLine($"Mapped DriverProfileDto: {dto}");
 
             return dto;
         }

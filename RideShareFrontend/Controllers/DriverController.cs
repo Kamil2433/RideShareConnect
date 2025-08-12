@@ -353,6 +353,8 @@ namespace RideShareFrontend.Controllers
                     if (profile != null)
                     {
                         profile.IsNewProfile = false;
+                    ViewData["IsVerified"] = profile.isverfied;
+
                         return View(profile);
                     }
                 }

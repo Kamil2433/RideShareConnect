@@ -27,6 +27,12 @@
         @Html.AntiForgeryToken()
 
 
+    @if (ViewData["IsVerified"] != null && !(bool)ViewData["IsVerified"])
+    {
+        <div class="alert alert-warning">
+            <strong>Profile not verified yet!</strong> Your profile Verfication is pending..
+        </div>
+    }
         
 
         <!-- Personal Information Section -->

@@ -11,7 +11,6 @@ namespace RideShareConnect.Dtos
         public bool IsNewProfile { get; set; }
 
 
-        public bool isverfied { get; set; } // Indicates if the driver is verified
         // Driver Information
         public string LicenseNumber { get; set; }
         public DateTime LicenseExpiryDate { get; set; }
