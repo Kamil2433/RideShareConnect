@@ -37,7 +37,7 @@
             <span asp-validation-for="VehicleType" class="text-danger"></span>
         </div>
 
-  
+
 
         <div class="form-group">
             <label asp-for="LicensePlate"></label>
@@ -53,7 +53,8 @@
 
         <div class="form-group">
             <label asp-for="RegistrationExpiry"></label>
-            <input asp-for="RegistrationExpiry" type="date" class="form-control" min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") />
+            <input asp-for="RegistrationExpiry" type="date" class="form-control"
+                min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") />
             <span asp-validation-for="RegistrationExpiry" class="text-danger"></span>
         </div>
 
@@ -63,20 +64,23 @@
             <input type="file" id="RCDocumentFile" name="RCDocumentFile" class="form-control" accept="image/*,.pdf" />
             <input type="hidden" asp-for="RCDocumentBase64" id="RCDocumentBase64" />
             <span asp-validation-for="RCDocumentBase64" class="text-danger"></span>
-            <img id="rcPreview" src="@(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "" : $"data:image/*;base64,{Model.RCDocumentBase64}")"
-                 class="img-thumbnail mt-2"
-                 style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "none" : "block")" />
+            <img id="rcPreview"
+                src="@(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "" : $"data:image/*;base64,{Model.RCDocumentBase64}")"
+                class="img-thumbnail mt-2"
+                style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.RCDocumentBase64) ? "none" : "block")" />
         </div>
 
         <!-- Insurance Document Upload -->
         <div class="form-group">
             <label>Insurance Document</label>
-            <input type="file" id="InsuranceDocumentFile" name="InsuranceDocumentFile" class="form-control" accept="image/*,.pdf" />
+            <input type="file" id="InsuranceDocumentFile" name="InsuranceDocumentFile" class="form-control"
+                accept="image/*,.pdf" />
             <input type="hidden" asp-for="InsuranceDocumentBase64" id="InsuranceDocumentBase64" />
             <span asp-validation-for="InsuranceDocumentBase64" class="text-danger"></span>
-            <img id="insurancePreview" src="@(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "" : $"data:image/*;base64,{Model.InsuranceDocumentBase64}")"
-                 class="img-thumbnail mt-2"
-                 style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "none" : "block")" />
+            <img id="insurancePreview"
+                src="@(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "" : $"data:image/*;base64,{Model.InsuranceDocumentBase64}")"
+                class="img-thumbnail mt-2"
+                style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.InsuranceDocumentBase64) ? "none" : "block")" />
         </div>
 
         <button type="submit" class="btn btn-primary">Save Vehicle</button>
@@ -121,7 +125,7 @@
         });
 
         // License plate formatting (uppercase)
-        document.getElementById("LicensePlate").addEventListener("input", function(e) {
+        document.getElementById("LicensePlate").addEventListener("input", function (e) {
             this.value = this.value.toUpperCase();
         });
     </script>
