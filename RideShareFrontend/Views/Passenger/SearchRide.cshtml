@@ -197,19 +197,13 @@
                     <span asp-validation-for="RideDate" class="text-danger"></span>
                 </div>
 
-                <div class="form-group ">
-                    <label asp-for="Passengers"></label>
+                <div class="form-group " style="display: flex; flex-direction: column; width: 40%;">
+                    <label asp-for="Passengers" style="margin-left: 3vw;"></label>
                     <input asp-for="Passengers" type="number" class="dateinput" min="1" max="10" />
                     <span asp-validation-for="Passengers" class="text-danger"></span>
                 </div>
             </div>
 
-            <div class="form-group">
-                <div class="form-check">
-                    <input asp-for="FlexibleDates" class="form-check-input" />
-                    <label asp-for="FlexibleDates" class="form-check-label"></label>
-                </div>
-            </div>
 
             <button type="submit" class="submit-button">Search Rides</button>
         </form>
