@@ -13,12 +13,12 @@ namespace RideShareConnect.Repository.Implements
         {
             _context = context;
         }
-     public async Task<bool> CreateProfileAsync(UserProfile profile)
-{
-    await _context.UserProfiles.AddAsync(profile);
-    var result = await _context.SaveChangesAsync();
-    return result > 0;
-}
+        public async Task<bool> CreateProfileAsync(UserProfile profile)
+        {
+            await _context.UserProfiles.AddAsync(profile);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
 
         public async Task<UserProfile?> GetProfileByUserIdAsync(int userId)
         {

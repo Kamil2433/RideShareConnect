@@ -25,7 +25,6 @@ namespace RideShareConnect.Models
         [StringLength(255)]
         public string Address { get; set; }
 
-        [StringLength(255)]
         public string ProfilePicture { get; set; }
 
         public User User { get; set; }

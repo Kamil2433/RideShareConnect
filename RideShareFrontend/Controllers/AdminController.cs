@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using RideShareConnect.Models;
+// using RideShareConnect.Models;
+using RideShareFrontend.Models.DTOs;
 using System.Text;
 using System.Text.Json;
 
@@ -18,14 +19,14 @@ namespace RideShareConnect.Controllers
             Console.WriteLine("Authenticated: " + User.Identity.IsAuthenticated);
             Console.WriteLine("Role: " + User.FindFirst(ClaimTypes.Role)?.Value);
             var token = HttpContext.Request.Cookies["jwt"];
-            Console.WriteLine("🔴 RAW COOKIE JWT: " + token);
+            Console.WriteLine(" RAW COOKIE JWT: " + token);
             if (string.IsNullOrEmpty(token))
-                Console.WriteLine("❌ No JWT in Cookie");
+                Console.WriteLine(" No JWT in Cookie");
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
             foreach (var claim in jwt.Claims)
             {
-                Console.WriteLine($"🔹 Claim: {claim.Type} = {claim.Value}");
+                Console.WriteLine($" Claim: {claim.Type} = {claim.Value}");
             }
             return View();
         }

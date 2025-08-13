@@ -6,22 +6,38 @@ using System.Text.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Net;
-
-
 using RideShareConnect.Models;
 
+using RideShareFrontend.Models.DTOs;
 
-namespace RideShareConnect.Controllers
+namespace RideShareFrontend.Controllers
 {
     [Authorize(Roles = "Driver")]
     public class DriverController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+
+        private readonly HttpClient _httpClient;
+
+
+        //iconfiguration and logger for dependency injection, this is used to fetch the base URL for the API and log messages form appsetting.json file
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<DriverController> _logger;
 
         public DriverController(IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient();
+            _configuration = configuration;
+            _logger = logger;
+
+            // Set base address for API
+            var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5157/";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            // Ensure cookies are sent with requests
+            _httpClient.DefaultRequestHeaders.ConnectionClose = false; // Keep connection alive for cookie handling
         }
+
+
 
         public IActionResult Index()
         {
@@ -38,39 +54,158 @@ namespace RideShareConnect.Controllers
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Myrides()
-        {
-            var token = HttpContext.Request.Cookies["jwt"];
 
-            if (string.IsNullOrEmpty(token))
-            {
-                TempData["Error"] = "Unauthorized. Please log in.";
-                return RedirectToAction("Login", "Account");
-            }
+        [HttpGet]
+        public async Task<IActionResult> VehicleManagement()
+        {
+            var model = new VehicleRegistrationViewModel();
 
             try
             {
-                var client = _httpClientFactory.CreateClient("ApiClient");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("Index");
+                }
 
-                var response = await client.GetAsync("api/Ride/user");
+                // Request to get existing vehicles for logged-in driver
+                var request = new HttpRequestMessage(HttpMethod.Get, "/api/vehicle/my-vehicles");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var rides = JsonSerializer.Deserialize<List<RideDto>>(json, new JsonSerializerOptions
+                    // Deserialize the JSON response to a list of VehicleRegistrationViewModel
+                    var vehicles = JsonSerializer.Deserialize<List<VehicleRegistrationViewModel>>(json, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                    return View(rides);
+         
+                    if (vehicles != null && vehicles.Count > 0)
+                    {
+                        var firstVehicle = vehicles[0];
+                        model.VehicleType = firstVehicle.VehicleType;
+                        model.InsuranceNumber = firstVehicle.InsuranceNumber;
+                        model.RegistrationExpiry = firstVehicle.RegistrationExpiry;
+                        model.RCDocumentBase64 = firstVehicle.RCDocumentBase64;
+                        model.InsuranceDocumentBase64 = firstVehicle.InsuranceDocumentBase64;
+                        model.LicensePlate = firstVehicle.LicensePlate;
+
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to load existing vehicles: {StatusCode}", response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and show an error message
+                _logger.LogError(ex, "Exception while loading existing vehicles for VehicleManagement.");
+            }
+
+            return View(model);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VehicleManagement(VehicleRegistrationViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Vehicle Registration model: {Errors}",
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return View(model);
+            }
+
+            try
+            {
+                var jwtCookie = HttpContext.Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwtCookie))
+                {
+                    TempData["ErrorMessage"] = "Unauthorized: JWT missing.";
+                    return RedirectToAction("Index");
                 }
 
-                TempData["Error"] = $"Failed to fetch rides: {response.StatusCode}";
-                return View(new List<RideDto>());
+
+
+                var dto = new
+                {
+                    model.VehicleType,
+                    model.LicensePlate,
+                    model.InsuranceNumber,
+                    model.RegistrationExpiry,
+                    model.RCDocumentBase64,
+                    model.InsuranceDocumentBase64,
+                };
+
+                var json = JsonSerializer.Serialize(dto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, "/api/vehicle/register")
+                {
+                    Content = content
+                };
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Vehicle registered successfully!";
+                    return RedirectToAction("VehicleManagement");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Vehicle registration API failed: {StatusCode} - {Error}", response.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to register vehicle.";
+                    return View(model);
+                }
             }
-            catch (HttpRequestException httpEx)
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception during vehicle registration.");
+                TempData["ErrorMessage"] = "An error occurred while registering the vehicle.";
+                return View(model);
+            }
+        }
+
+
+
+     
+ [HttpGet]
+public async Task<IActionResult> DriverProfile()
+{
+    try
+    {
+        var jwtCookie = HttpContext.Request.Cookies["jwt"];
+        if (string.IsNullOrEmpty(jwtCookie))
+        {
+            _logger.LogWarning("JWT cookie not found in request");
+            TempData["ErrorMessage"] = "You are not logged in.";
+            return RedirectToAction("Index");
+        }
+        var request = new HttpRequestMessage(HttpMethod.Get, "api/UserProfile/me");
+        request.Headers.Add("Accept", "application/json");
+        request.Headers.Add("Cookie", $"jwt={jwtCookie}");
+        var response = await _httpClient.SendAsync(request);
+        _logger.LogInformation("Response Status: {StatusCode}", response.StatusCode);
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var profile = JsonSerializer.Deserialize<UserProfileViewModel>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            if (profile != null)
             {
                 TempData["Error"] = $"Service unavailable: {httpEx.Message}";
                 return View(new List<RideDto>());
@@ -192,69 +327,36 @@ namespace RideShareConnect.Controllers
                 return RedirectToAction("PostRide");
             }
 
-            try
+                    try
             {
                 var client = _httpClientFactory.CreateClient("ApiClient");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                        client.DefaultRequestHeaders.Add("Cookie", $"jwt={token}");
 
-                var response = await client.PostAsJsonAsync("api/Ride", ride);
-
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["Success"] = "Ride posted successfully!";
-                    return RedirectToAction("PostRide");
+                    TempData["SuccessMessage"] = "Profile deleted successfully!";
+                    _logger.LogInformation("Profile deleted successfully");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Delete API call failed with status: {StatusCode}, Error: {Error}", response.StatusCode, errorContent);
+                    TempData["ErrorMessage"] = "Failed to delete profile.";
                 }
 
-                var errorContent = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = "Failed to post ride. Please try again.";
-                Console.WriteLine($"API Error: {response.StatusCode} - {errorContent}");
-                ModelState.AddModelError("", $"API Error: {response.StatusCode} - {errorContent}");
-                return View(ride);
-            }
-            catch (HttpRequestException httpEx)
-            {
-                TempData["Error"] = $"Service unavailable: {httpEx.Message}";
-                Console.WriteLine($"HTTP Request Exception: {httpEx}");
-                ModelState.AddModelError("", "Service unavailable. Please try again later.");
-                return View(ride);
+                return RedirectToAction("PassengerProfile");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "A system error occurred. Please contact support.";
-                Console.WriteLine($"Unexpected Error: {ex}");
-                return RedirectToAction("PostRide");
+                _logger.LogError(ex, "Error deleting passenger profile");
+                TempData["ErrorMessage"] = "An error occurred while deleting the profile.";
+                return RedirectToAction("PassengerProfile");
             }
         }
 
-        [HttpGet("geocode")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Geocode([FromQuery(Name = "q")] string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-                return BadRequest("Query parameter is required.");
-
-            try
-            {
-                using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("RideShareApp/1.0");
-
-                var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(query)}&format=json";
-                var response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-                return Content(content, "application/json");
-            }
-            catch (HttpRequestException ex)
-            {
-                return StatusCode(503, $"Geocoding service unavailable: {ex.Message}");
-            }
-        }
-
-        [HttpGet("reverse-geocode")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ReverseGeocode([FromQuery] double lat, [FromQuery] double lng)
+        protected override void Dispose(bool disposing)
         {
             try
             {

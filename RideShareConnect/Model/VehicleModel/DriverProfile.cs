@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RideShareConnect.Models
 {
-    public class DriverProfileModel
+    public class DriverProfile
     {
         [Key]
         public int DriverProfileId { get; set; }
@@ -18,7 +18,6 @@ namespace RideShareConnect.Models
         [Required]
         public DateTime LicenseExpiryDate { get; set; }
 
-        [StringLength(255)]
         public string LicenseImageUrl { get; set; } = string.Empty;
 
         [Range(0, 50)]
@@ -34,8 +33,8 @@ namespace RideShareConnect.Models
 
         public DateTime? VerifiedAt { get; set; }
 
-        // Relationships
-        // public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
-        // public ICollection<DriverRating> DriverRatings { get; set; } = new List<DriverRating>();
+        // ✅ Navigation Properties
+        public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        public virtual ICollection<DriverRating> DriverRatings { get; set; } = new List<DriverRating>();
     }
 }

@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using RideShareConnect.Models;
+using RideShareConnect.Data;
 
 using RideShareConnect.Models.PayModel;
-
 using RideShareConnect.Models.Admin;
+
 
 
 namespace RideShareConnect.Data
@@ -17,7 +18,13 @@ namespace RideShareConnect.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<TwoFactorCode> TwoFactorCodes { get; set; }
+        public DbSet<ResetPasswordOtp> ResetPasswordOtps { get; set; }
 
+
+        // RideShare - Vehicle & Driver Management
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<DriverProfile> DriverProfiles { get; set; }
+        public DbSet<DriverRating> DriverRatings { get; set; }
         // New entities
         public DbSet<Ride> Rides { get; set; }
         public DbSet<RideBooking> RideBookings { get; set; }
@@ -35,11 +42,10 @@ namespace RideShareConnect.Data
 
 
         // ✅ Admin module tables
-        public DbSet<Admin> Admins { get; set; }
+         public DbSet<Admin> Admins { get; set; }
         public DbSet<Analytics> Analytics { get; set; }
         public DbSet<Commission> Commissions { get; set; }
         public DbSet<Complaints> Complaints { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,16 +56,11 @@ namespace RideShareConnect.Data
             modelBuilder.Entity<User>()
                 .HasKey(u => u.UserId);
             modelBuilder.Entity<User>()
-                .Property(u => u.Email)
-                .IsRequired()
-                .HasMaxLength(255);
+                .Property(u => u.Email).IsRequired().HasMaxLength(255);
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
+                .HasIndex(u => u.Email).IsUnique();
             modelBuilder.Entity<User>()
-                .Property(u => u.Role)
-                .IsRequired()
-                .HasMaxLength(50);
+                .Property(u => u.Role).IsRequired().HasMaxLength(50);
 
             // UserProfile
             // --- UserProfile ---
@@ -125,26 +126,65 @@ namespace RideShareConnect.Data
             // RideRequest
             modelBuilder.Entity<RideRequest>()
                 .HasKey(rr => rr.RequestId);
+                // --- ResetPasswordOtp ---
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .HasKey(r => r.Id);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.Otp)
+                .IsRequired()
+                .HasMaxLength(10);
+            modelBuilder.Entity<ResetPasswordOtp>()
+                .Property(r => r.CreatedAt)
+                .IsRequired();
 
-               //wallet
-               // Wallet - One to Many: Wallet -> WalletTransactions
+            // --- DriverProfile ---
+            modelBuilder.Entity<DriverProfile>()
+                .HasKey(d => d.DriverProfileId);
+            modelBuilder.Entity<DriverProfile>()
+                .HasMany(d => d.Vehicles)
+                .WithOne(v => v.Driver)
+                .HasForeignKey(v => v.DriverId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<DriverProfile>()
+                .HasMany(d => d.DriverRatings)
+                .WithOne(r => r.Driver)
+                .HasForeignKey(r => r.DriverId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // --- Vehicle --- (simplified version)
+            modelBuilder.Entity<Vehicle>()
+                .HasKey(v => v.VehicleId);
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.VehicleType).IsRequired().HasMaxLength(30);
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.LicensePlate).IsRequired().HasMaxLength(20);
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.InsuranceNumber).IsRequired().HasMaxLength(50);
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.RCDocumentBase64).IsRequired();
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.InsuranceDocumentBase64).IsRequired();
+
+            // --- DriverRating ---
+            modelBuilder.Entity<DriverRating>()
+                .HasKey(r => r.RatingId);
+
+            // --- Wallet ---
             modelBuilder.Entity<Wallet>()
                 .HasMany(w => w.Transactions)
                 .WithOne(t => t.Wallet)
                 .HasForeignKey(t => t.WalletId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // Optional: Fluent API configuration
             modelBuilder.Entity<Wallet>()
-                .Property(w => w.Balance)
-                .HasColumnType("decimal(18,2)");
-
+                .Property(w => w.Balance).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<WalletTransaction>()
-                .Property(t => t.Amount)
-                .HasColumnType("decimal(18,2)");
- 
+                .Property(t => t.Amount).HasColumnType("decimal(18,2)");
 
-            // --- Admin (optional config if needed) ---
+            // --- Admin ---
             modelBuilder.Entity<Admin>()
                 .Property(a => a.Username).IsRequired().HasMaxLength(100);
             modelBuilder.Entity<Admin>()
@@ -157,10 +197,6 @@ namespace RideShareConnect.Data
                 .Property(a => a.Date).IsRequired();
             modelBuilder.Entity<Analytics>()
                 .Property(a => a.TotalRevenue).HasColumnType("decimal(18,2)");
-
-            // --- Commission & Complaints ---
-            // Add configuration if needed, otherwise EF will map by convention
-
         }
     }
 }

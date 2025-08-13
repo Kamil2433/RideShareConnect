@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-	public class MaintenanceRecordModel
+	public class MaintenanceRecord
 	{
 		[Key]
 		public int MaintenanceId { get; set; }
@@ -32,5 +32,6 @@ namespace RideShareConnect.Models
 		// Navigation
 		// [ForeignKey("VehicleId")]
 		// public Vehicle? Vehicle { get; set; }
+		public virtual Vehicle Vehicle { get; set; } = null!;
 	}
 }

@@ -3,6 +3,7 @@
 }
 <!DOCTYPE html>
 <html>
+
 <head>
 
     <meta charset="utf-8" />
@@ -12,7 +13,7 @@
     <title>@ViewBag.Title - Passenger Dashboard</title>
 
     <link rel="stylesheet" href="~/css/passengerSidebar.css" />
-     @RenderSection("Styles", required: false)
+    @RenderSection("Styles", required: false)
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
@@ -22,57 +23,63 @@
 
 
 
-<div class="dashboard-container">
+    <div class="dashboard-container">
 
-    <!-- Sidebar -->
+        <!-- Sidebar -->
 
-    <nav class="sidebar">
+        <nav class="sidebar">
 
-        <div class="sidebar-header">
+            <div class="sidebar-header">
 
-            <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
 
-            <h3><a href="/Passenger/">DRIVER PROFILE
-            </a>
-             </h3>
+                <h3><a href="/driver/UserProfile">DRIVER PROFILE
+                    </a>
+                </h3>
 
-        </div>
+            </div>
 
-        <ul class="sidebar-menu">
+            <ul class="sidebar-menu">
 
              <li><a href="/driver/postride"><i class="fas fa-car"></i><span>POST RIDE</span></a></li> 
 
-            <!-- <li><a href="/Passenger/AcceptRide"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li> -->
+                <!-- <li><a href="/Passenger/AcceptRide"><i class="fas fa-check-circle"></i><span>ACCEPT RIDE</span></a></li> -->
 
-            <li><a href="/driver/Wallet"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
+                <li><a href="/driver/DriverProfile"><i class="fas fa-car"></i><span>DriverProfile</span></a></li>
 
-            <li><a href="/driver/Payments"><i class="fas fa-credit-card"></i><span>PAYMENTS</span></a></li>
+                <li><a href="/driver/VehicleManagement"><i class="fas fa-car"></i><span>VehicleManagement</span></a>
+                </li>
 
-            <li><a href="/driver/History"><i class="fas fa-history"></i><span>HISTORY</span></a></li>
+                <li><a href="/driver/Wallet"><i class="fas fa-wallet"></i><span>WALLET</span></a></li>
 
-            <li><a href="/driver/About"><i class="fas fa-info-circle"></i><span>ABOUT</span></a></li>
+                <li><a href="/driver/Payments"><i class="fas fa-credit-card"></i><span>PAYMENTS</span></a></li>
 
-            <li><a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i><span>LOGOUT</span></a></li>
+                <li><a href="/driver/History"><i class="fas fa-history"></i><span>HISTORY</span></a></li>
 
-        </ul>
+                <li><a href="/driver/About"><i class="fas fa-info-circle"></i><span>ABOUT</span></a></li>
 
-    </nav>
+                <li><a href="#" onclick="logout(); return false;"><i
+                            class="fas fa-sign-out-alt"></i><span>LOGOUT</span></a></li>
 
+            </ul>
 
-
-    <!-- Main Page Content Here -->
-
-    <main class="main-content">
-
-        @RenderBody()
-
-    </main>
-
-</div>
+        </nav>
 
 
 
-<script>
+        <!-- Main Page Content Here -->
+
+        <main class="main-content">
+
+            @RenderBody()
+
+        </main>
+
+    </div>
+
+
+
+    <script>
         // Role-based protection
         const token = localStorage.getItem("jwt_token");
 
@@ -91,10 +98,10 @@
 
 
         function logout() {
-        localStorage.removeItem("jwt_token");
-        alert("You have been logged out.");
-        window.location.href = "/";
-    }
+            localStorage.removeItem("jwt_token");
+            alert("You have been logged out.");
+            window.location.href = "/";
+        }
     </script>
 
 
@@ -106,4 +113,3 @@
 
 
 </html>
-

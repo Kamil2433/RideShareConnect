@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RideShareConnect.Models
 {
-	public class DriverRatingModel
+	public class DriverRating
 	{
 		[Key]
 		public int RatingId { get; set; }
@@ -30,5 +30,6 @@ namespace RideShareConnect.Models
 		// Navigation
 		// [ForeignKey("DriverId")]
 		// public DriverProfile? Driver { get; set; }
+		public virtual DriverProfile Driver { get; set; } = null!;
 	}
 }

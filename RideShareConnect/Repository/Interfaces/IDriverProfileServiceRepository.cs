@@ -1,13 +1,11 @@
-// using RideShareConnect.Models;
-// using System.Threading.Tasks;
+using RideShareConnect.Models;
 
-// namespace RideShareConnect.Repository.Interfaces
-// {
-// 	public interface IDriverProfileServiceRepository
-//     {
-// 		Task CreateDriverProfile(DriverProfileModel profile);
-// 		Task UpdateDriverProfile(int driverProfileId,DriverProfileModel profile);
-// 		Task VerifyDriver(int driverProfileId);
-// 		Task<bool> CheckLicenseExpiry(int driverProfileId);
-// 	}
-// }
+namespace RideShareConnect.Repository.Interfaces
+{
+    public interface IDriverProfileRepository
+    {
+        Task<DriverProfile?> GetByUserIdAsync(int userId);
+        Task<bool> CreateAsync(DriverProfile profile);
+        Task<bool> UpdateAsync(DriverProfile profile);
+    }
+}

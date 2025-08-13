@@ -5,6 +5,9 @@ using RideShareConnect.Repository.Interfaces;
 using RideShareConnect.Repository.Implements;
 using RideShareConnect.Services;
 using RideShareConnect.MappingProfiles;
+using RideShareConnect.Services.Interfaces;
+using RideShareConnect.Services.Implements;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +18,23 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
-// // Configure EF Core with MSSQL
-// builder.Services.AddDbContext<AppDbContext>(options =>
-//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Configure EF Core with MSSQL
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5, // how many times to retry
+            maxRetryDelay: TimeSpan.FromSeconds(10), // delay between retries
+            errorNumbersToAdd: null // additional SQL error codes to retry
+        )
+    )
+);
+
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(Module1AutoMapperProfile));
-//builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(UserProfileAutoMapperProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ResetPasswordMapperProfile));
+
 
 // Register repositories and services
 builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
@@ -34,11 +47,7 @@ builder.Services.AddAutoMapper(typeof(UserProfileAutoMapperProfile).Assembly);
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure())
-);
+builder.Services.AddScoped<IResetPasswordRepository, ResetPasswordRepository>();
 
 
 // Configure CORS
@@ -66,38 +75,15 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new() { Title = "RideShareConnect API", Version = "v1" });
+builder.Services.AddSwaggerGen();
 
-    // Enable JWT auth
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Enter your JWT token like: Bearer <token>"
-    });
-
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
-
-
+// builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordService>();
+// builder.Services.AddScoped<IVehicleDocumentServiceRepository, VehicleDocumentService>();
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+builder.Services.AddScoped<IDriverProfileRepository, DriverProfileRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();                    
+// builder.Services.AddScoped<IDriverRatingRepository, DriverRatingService>();  
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
@@ -117,7 +103,7 @@ builder.Services.AddAuthentication("Cookies")
             return Task.CompletedTask;
         };
     });
-  builder.Services.AddAuthorization();
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
@@ -137,36 +123,36 @@ app.UseCookiePolicy(new CookiePolicyOptions
 });
 app.Use(async (context, next) =>
 {
-     var jwt = context.Request.Cookies["jwt"];
+    var jwt = context.Request.Cookies["jwt"];
     Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
     await next();
 });
 app.Use(async (context, next) =>
 {
-    var jwt = context.Request.Cookies["jwt"];
-    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
+    var jwt = context.Request.Cookies["jwt"];
+    Console.WriteLine("🔍 Backend sees JWT cookie: " + jwt);
 
-    if (!string.IsNullOrEmpty(jwt))
-    {
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        try
-        {
-            var token = handler.ReadJwtToken(jwt);
-            var identity = new System.Security.Claims.ClaimsIdentity(token.Claims, "Cookies");
-            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
-            context.User = principal;
+    if (!string.IsNullOrEmpty(jwt))
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        try
+        {
+            var token = handler.ReadJwtToken(jwt);
+            var identity = new System.Security.Claims.ClaimsIdentity(token.Claims, "Cookies");
+            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+            context.User = principal;
 
-            Console.WriteLine("✅ Backend set HttpContext.User from cookie.");
-            Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
-            Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
-        }
-        catch (Exception ex)
-        {
-           Console.WriteLine("❌ Failed to parse JWT: " + ex.Message);
-        }
-    }
+            Console.WriteLine("✅ Backend set HttpContext.User from cookie.");
+            Console.WriteLine("👤 Identity.IsAuthenticated: " + context.User.Identity?.IsAuthenticated);
+            Console.WriteLine("🔑 Role: " + context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Failed to parse JWT: " + ex.Message);
+        }
+    }
 
-    await next();
+    await next();
 });
 
 app.UseAuthentication();

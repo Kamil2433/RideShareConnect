@@ -1,6 +1,6 @@
 @model RideShareConnect.Models.UserProfileViewModel
 @{
-     Layout = "_DriverLayout.cshtml";
+    Layout = "_DriverLayout.cshtml";
     ViewData["Title"] = "Driver Profile";
 }
 @section Styles {
@@ -23,13 +23,19 @@
         </div>
     }
 
-    <form  asp-action="DriverProfile" id="profileForm" method="post" novalidate>
+    <form asp-action="DriverProfile" id="profileForm" method="post" novalidate>
         @Html.AntiForgeryToken()
         <div class="form-group">
-             <label>Upload Profile Picture</label>
-    <input type="file" id="ProfilePictureFile" class="form-control" accept="image/*" />
-    <input type="hidden" asp-for="ProfilePicture" />
-    <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+            <label>Upload Profile Picture</label>
+            <input type="file" id="ProfilePictureFile" class="form-control" accept="image/*" />
+            <input type="hidden" asp-for="ProfilePicture" />
+            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+            {
+                <div class="mt-2">
+                    <img src="@Model.ProfilePicture" alt="Profile Picture" style="max-width: 200px; max-height: 200px;" />
+                </div>
+            }
         </div>
         <div class="form-group">
             <label asp-for="FirstName">First Name</label>
@@ -51,7 +57,6 @@
             <input asp-for="Address" class="form-control" />
             <span asp-validation-for="Address" class="text-danger"></span>
         </div>
-        
         <button type="submit" class="btn btn-primary">Save</button>
         @if (!Model.IsNewProfile)
         {
@@ -61,74 +66,17 @@
 </div>
 
 @section Scripts {
-    <!-- <script>
-        $(document).ready(function () {
-            $("#profileForm").submit(async function (event) {
-                event.preventDefault();
-
-                var formData = {
-                    FirstName: $("#FirstName").val(),
-                    LastName: $("#LastName").val(),
-                    PhoneNumber: $("#PhoneNumber").val(),
-                    Address: $("#Address").val(),
-                    ProfilePicture: $("#ProfilePicture").val(),
-                    IsNewProfile: @Model.IsNewProfile.ToString().ToLower()
-                };
-
-                var token = $('input[name="__RequestVerificationToken"]').val();
-
-                var response = await fetch('/Passenger/PassengerProfile', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token
-                    },
-                    credentials: 'include', // Ensure jwt cookie is sent
-                    body: JSON.stringify(formData)
-                });
-
-                var result = await response.json();
-                if (result.success) {
-                    alert(result.message);
-                    location.reload();
-                } else {
-                    alert(result.message || 'Error saving profile.');
-                    if (result.errors) {
-                        result.errors.forEach(function (error) {
-                            console.log(error);
-                        });
-                    }
-                }
-            });
-
-            $("#deleteProfile").click(function () {
-                if (confirm('Are you sure you want to delete your profile?')) {
-                    fetch('/Passenger/DeleteProfile', {
-                        method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        credentials: 'include' // Ensure jwt cookie is sent
-                    }).then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert('Failed to delete profile.');
-                        }
-                    });
-                }
-            });
-        });
-    </script> -->
-
     <script>
-    document.getElementById("ProfilePictureFile").addEventListener("change", function () {
-        const fileInput = this;
-        if (fileInput.files.length > 0) {
-            // Simulate assigning static path instead of uploading the file
-            document.getElementById("ProfilePicture").value = "/img/pic.jpg";
-        }
-    });
-</script>
-
+        document.getElementById("ProfilePictureFile").addEventListener("change", function () {
+            const fileInput = this;
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("ProfilePicture").value = e.target.result;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        });
+    </script>
 }
+
