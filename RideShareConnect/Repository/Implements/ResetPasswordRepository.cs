@@ -6,17 +6,21 @@ using RideShareConnect.Data;
 using RideShareConnect.Dtos;
 using RideShareConnect.Models;
 using RideShareConnect.Repository.Interfaces;
-using BCrypt.Net;
+using RideShareConnect.Services;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace RideShareConnect.Repository.Implements
 {
     public class ResetPasswordRepository : IResetPasswordRepository
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public ResetPasswordRepository(AppDbContext context)
+        public ResetPasswordRepository(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<bool> SendResetPasswordOtpAsync(SendResetPasswordOtpDto dto)
@@ -30,7 +34,7 @@ namespace RideShareConnect.Repository.Implements
             var otpEntity = new ResetPasswordOtp
             {
                 Email = dto.Email,
-                Otp = otpCode, // ✅ using Otp instead of OtpCode
+                Otp = otpCode,
                 CreatedAt = DateTime.UtcNow,
                 ExpiryTime = DateTime.UtcNow.AddMinutes(5)
             };
@@ -39,6 +43,20 @@ namespace RideShareConnect.Repository.Implements
             await _context.SaveChangesAsync();
 
             Console.WriteLine($"[DEBUG] OTP for {dto.Email}: {otpCode}");
+
+            // Send OTP via email
+            try
+            {
+                var subject = "Your OTP for Password Reset";
+                var body = $"<h3>Password Reset OTP</h3><p>Your one-time password (OTP) is: <strong>{otpCode}</strong></p><p>This OTP is valid for 5 minutes.</p>";
+                await _emailService.SendEmailAsync(dto.Email, subject, body);
+                Console.WriteLine($"[DEBUG] Email sent to {dto.Email} with OTP: {otpCode}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to send email to {dto.Email}: {ex.Message}");
+                return false; // Return false if email sending fails
+            }
 
             return true;
         }
@@ -56,7 +74,7 @@ namespace RideShareConnect.Repository.Implements
             if (DateTime.UtcNow > latestOtp.ExpiryTime)
                 return false;
 
-            return latestOtp.Otp == dto.OtpCode; // ✅ comparing with Otp
+            return latestOtp.Otp == dto.OtpCode;
         }
 
         public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
@@ -68,7 +86,11 @@ namespace RideShareConnect.Repository.Implements
             if (user == null)
                 return false;
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            // Match AuthController hashing logic
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(dto.Password);
+            var hash = sha256.ComputeHash(bytes);
+            string hashedPassword = Convert.ToBase64String(hash);
 
             user.PasswordHash = hashedPassword;
             _context.Users.Update(user);

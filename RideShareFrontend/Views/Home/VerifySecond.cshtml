@@ -1,0 +1,51 @@
+@model RideShareFrontend.Models.VerifyOtpModel
+
+@{
+    ViewData["Title"] = "Reset Password - Verify OTP";
+}
+<style>
+    .verify-container {
+        max-width: 500px;
+        margin: 100px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+    }
+    .verify-container h2 {
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    .verify-container h4 {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 6px;
+    }
+</style>
+<div style="margin-top: 400px; margin-bottom: 400px;">
+    <h2>Verify OTP</h2>
+    <h4>Email: @Model.Email</h4>
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <form asp-action="VerifySecond" asp-route-returnUrl="/VerifySecond" method="post">
+        <input asp-for="Email" type="hidden" />
+        <div class="form-group">
+            <label asp-for="OtpCode">Enter OTP</label>
+            <input asp-for="OtpCode" class="form-control" />
+            <span asp-validation-for="OtpCode" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Verify OTP</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
